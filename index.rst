@@ -12,6 +12,8 @@ Simulation Methods in Population Genetics
 
    00_Preamble.rst
    01_Introduction.rst
+   02_Coalescent.rst
+   03_mvNormal.rst
 
 
 

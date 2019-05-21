@@ -40,6 +40,7 @@ release = u'0.0.1'
 # ones.
 extensions = [
     'sphinx.ext.imgmath',
+    'matplotlib.sphinxext.plot_directive',
     'IPython.sphinxext.ipython_console_highlighting',
     'IPython.sphinxext.ipython_directive',
 ]

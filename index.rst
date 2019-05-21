@@ -15,6 +15,8 @@ Simulation Methods in Population Genetics
    02_Coalescent.rst
    03_mvNormal.rst
 
+   A00_Bibliography.rst
+
 
 
 Indices and tables

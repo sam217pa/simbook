@@ -21,7 +21,7 @@ def simulate(nsam: int):
 
     nodes = np.arange(2*nsam - 1, dtype=np.int32)
     node_times = np.zeros(2*nsam - 1)
-    num_edges = 2*(2*nsam-1-nsam)
+    num_edges = 2*nsam - 2
     parent = np.zeros(num_edges, dtype=np.int32)
     child = np.zeros(num_edges, dtype=np.int32)
     left = np.zeros(num_edges)

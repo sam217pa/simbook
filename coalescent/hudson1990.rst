@@ -17,7 +17,6 @@ Let's get the distribution of TMRCA and the total time on the tree (TTOT):
 .. ipython:: python
 
     nreps = 10000
-    import matplotlib.pyplot as plt
     nsam = 50
     tmrca = np.zeros(nreps)
     ttot = np.zeros(nreps)
@@ -30,9 +29,8 @@ Let's get the distribution of TMRCA and the total time on the tree (TTOT):
 .. ipython:: python
     :suppress:
 
-    import matplotlib.pyplot as plt
-    import matplotlib.gridspec as gridspec
     fig = plt.figure()
+    import matplotlib.gridspec as gridspec
     gs = gridspec.GridSpec(1, 2)
     tmrca_ax = fig.add_subplot(gs[0])
     ttot_ax = fig.add_subplot(gs[1],sharey=tmrca_ax)

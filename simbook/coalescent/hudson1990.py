@@ -1,3 +1,6 @@
+import tskit
+import numpy as np
+
 
 def simulate(nsam: int):
     """
@@ -14,47 +17,50 @@ def simulate(nsam: int):
     :param nsam: The sample size
     :type nsam: int
     """
-    import tskit
-    import numpy as np
-
     tc = tskit.TableCollection(1)
 
     nodes = np.arange(2*nsam - 1, dtype=np.int32)
-    node_times = np.zeros(2*nsam - 1)
-    num_edges = 2*nsam - 2
-    parent = np.zeros(num_edges, dtype=np.int32)
-    child = np.zeros(num_edges, dtype=np.int32)
-    left = np.zeros(num_edges)
-    right = np.ones(num_edges)
-    next_node_time = nsam
-    next_edge = 0
+    for i in range(nsam):
+        tc.nodes.add_row(time=0.0, flags=tskit.NODE_IS_SAMPLE)
     time = 0.0
-
     n = nsam
     while n > 1:
+        # Generate time to next coalescent event,
+        # in units of 2N generations.
         rcoal = (n*(n-1))/2.
         tcoal = np.random.exponential(1./rcoal)
         time += tcoal
-        node_times[next_node_time] = time
+
+        # Register a new ancestor node.
+        # The node is not a sample, 
+        # so its flag is zero
+        tc.nodes.add_row(time=time,
+                         flags=0)
+        # This is the index of the
+        # ancestor node
         ancestor = 2*nsam - n
+
+        # Perform the swap steps
+        # of the algorithm
         p = np.random.choice(n, 1)[0]
         c1 = nodes[p]
         nodes[p] = nodes[n-1]
         p = np.random.choice(n-1, 1)[0]
         c2 = nodes[p]
-        nodes[p] = nodes[2*nsam - n]
+        nodes[p] = nodes[ancestor]
+
+        # Both c1 an c2 have the same parental
+        # node (nodes[ancestor]).  An edge
+        # table requires that child nodes
+        # be sorted in increasing order
+        # per parent, so we enforce that here
         if c1 > c2:
             c1, c2 = c2, c1
-        parent[next_edge] = ancestor
-        parent[next_edge+1] = ancestor
-        child[next_edge] = c1
-        child[next_edge+1] = c2
-        next_node_time += 1
-        next_edge += 2
+        # Record the edges
+        tc.edges.add_row(parent=ancestor, child=c1,
+                         left=0.0, right=1.0)
+        tc.edges.add_row(parent=ancestor, child=c2,
+                         left=0.0, right=1.0)
         n -= 1
-    tc.nodes.set_columns(time=node_times, flags=np.ones(
-        len(node_times), dtype=np.uint32))
-    tc.edges.set_columns(left=left, right=right,
-                         parent=parent, child=child)
 
     return tc.tree_sequence()

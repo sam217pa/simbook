@@ -86,8 +86,8 @@ the coalescent events.
           # Swap our choice with an unused parental label
           node_labels[p] = node_labels[2*nsam - i] # Step D
           i -= 1
-          print("After coalescing {} and {}, sample list is: "\
-             .format(c1,c2),node_labels[:i])
+          print("After coalescing {} and {} into {}, sample list is: "\
+             .format(c1,c2,node_labels[p]),node_labels[:i])
        return tree, times
 
 .. note::
@@ -112,10 +112,10 @@ be to modify the above algorithm to generate tree sequence data structures
 (see :cite:`Kelleher2016-cb` for details), which we do in the following code block,
 which is part of the source code distributed with this book:
 
-.. literalinclude:: simbook/coalescent/hudson1990.py
+.. literalinclude:: ../../simbook/coalescent/hudson1990.py
 
 The previous code block was used to generate the following plot:
 
-.. plot:: coalescent/plots/h1990.py
+.. plot:: chapters/coalescent/plots/h1990.py
 
     The distribution of the time to the most recent common ancestor (TMRCA) and the total time on the tree (TTOT) for a sample size of :math:`n = 50`. The distributions are based on 10,000 simulation replicates.

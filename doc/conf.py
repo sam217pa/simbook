@@ -12,9 +12,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
@@ -69,6 +69,13 @@ language = None
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [u'book_build', 'Thumbs.db', '.DS_Store']
+
+# NOTE: by default, Sphinx searches for any and all files in 
+# source_suffix. For sanity, I want to include subsections,
+# "latex-like" if possible.  To do so, I block off the names
+# of the subdirs where these sections reside:
+section_subdirs = ['coalescent']
+exclude_patterns.extend(['chapters/'+i for i in section_subdirs])
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None

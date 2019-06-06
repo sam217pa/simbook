@@ -41,11 +41,13 @@ release = u'0.0.1'
 extensions = [
     'sphinxcontrib.bibtex',
     'sphinx.ext.imgmath',
+    'sphinx.ext.todo',
     'matplotlib.sphinxext.plot_directive',
     'IPython.sphinxext.ipython_console_highlighting',
     'IPython.sphinxext.ipython_directive',
 ]
 
+todo_include_todos = True
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['book_templates']
 

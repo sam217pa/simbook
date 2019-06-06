@@ -7,8 +7,11 @@ site: "bookdown::bookdown_site"
 output:
     bookdown::pdf_book:
         keep_tex: yes
+    bookdown::gitbook:
+        split_by: chapter
 bibliography: [chapters/simbook.bib]
 biblio-style: natbib
 link-citations: yes
 ---
 
+# Preface

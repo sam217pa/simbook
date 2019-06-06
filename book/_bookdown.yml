@@ -1,0 +1,6 @@
+rmd_files: ["index.Rmd",
+    "chapters/coalescent.Rmd",
+    "chapters/references.Rmd" ]
+output_dir: book_output
+book_filename: simbook.Rmd
+delete_merged_file: True

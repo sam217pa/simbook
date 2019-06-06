@@ -1,0 +1,14 @@
+--- 
+title: "Simulation methods in population genetics: algorithms and applications"
+author: "Kevin R Thornton"
+date: "`r Sys.Date()`"
+documentclass: book
+site: "bookdown::bookdown_site"
+output:
+    bookdown::pdf_book:
+        keep_tex: yes
+bibliography: [chapters/simbook.bib]
+biblio-style: natbib
+link-citations: yes
+---
+

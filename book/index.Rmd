@@ -13,6 +13,7 @@ output:
         split_by: chapter
 bibliography: [chapters/simbook.bib]
 link-citations: yes
+urlcolor: blue
 ---
 
 # Preface

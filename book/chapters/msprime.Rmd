@@ -1,5 +1,15 @@
 # Coalescent simulation using msprime
 
+Kelleher *et al.* [-@Kelleher2016-cb] described a new approach to simulating the coalescent with recombination taking advantage of tree sequence data structures (Chapter \@ref(treeseqs)).  They describe an open-source software package called `msprime`, which is an evolution of `ms` [@Hudson2002-oo], which is (or, was) the "industry standard" software for coalescent simulation for the better part of two decades.  Many authors (too many to cite here) have modified `ms` in various ways.  Doing so was often difficult for various reasons, but it was how a large number of researchers cut their teeth on learning how to implement coalescent models.  I think it is safe to say that those days are almost over--the performance improvements of `msprime` over `ms` means that the community is better off investing on code bases using tree sequences.  Further, Kelleher *et al.* [-@Kelleher2016-cb] cleverly decided to provide a command line interface to `msprime` that behaves exactly as `ms` does, meaning that a simple alias in a user's environment can update existing work flows.
+
+Performance aside, the major benefit of `msprime` is that it is implemented as a Python library rather than as a command-line package. (The `mspms` program mentioned above is installed with `msprime` to provide a command-line interface to a subset of the package's functionality).  Abstracting out the operations into a set of library functions and objects has many advantages.  First, the interface is greatly simplified, especially for complex demographic models, which may now be built up in "chunks" of Python logic (and comments, too!).  Second, much of the analysis of the simulation can be done in-memory, completely avoiding the need to write output to files.  
+
+## Obtaining msprime
+
+* [Source code](http://github.com/tskit-dev/msprime) is on github.
+* The [manual](http://msprime.readthedocs.io) is auto-generated on Read The Docs.
+* Binary builds for Linux and OS X are available from [conda-forge](https://anaconda.org/conda-forge/msprime).
+
 ## Parameter scaling
 
 By default, `msprime` using a scaling of `N` generations in the Python package.  Parameters like the mutation and recombination rates are in these units.

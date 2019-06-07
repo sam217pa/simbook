@@ -1,1 +1,1 @@
-# Tree sequences
+# Tree sequences {#treeseqs}

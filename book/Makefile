@@ -6,7 +6,6 @@ BIBFILES:=chapters/simbook.bib
 PYTHONFIGS=hudson1990.png migration.png
 
 all: ${PDFBOOK} ${HTMLBOOK}
-	echo ${RMD}
 
 clean:
 	rm -rf ${PDFBOOK} ${HTMLBOOK} ${PYTHONFIGS} simbook.Rmd book_output/*

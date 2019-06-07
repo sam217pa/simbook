@@ -1,7 +1,5 @@
 import msprime
 import numpy as np
-import scipy.stats
-from matplotlib import rc
 import matplotlib.pyplot as plt
 
 nreps = 10000

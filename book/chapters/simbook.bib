@@ -97,6 +97,51 @@
   pmc       = "PMC6233923"
 }
 
+@ARTICLE{Haller2018-eo,
+  title     = "Tree-sequence recording in {SLiM} opens new horizons for
+               forward-time simulation of whole genomes",
+  author    = "Haller, Benjamin C and Galloway, Jared and Kelleher, Jerome and
+               Messer, Philipp W and Ralph, Peter L",
+  abstract  = "There is an increasing demand for evolutionary models to
+               incorporate relatively realistic dynamics, ranging from
+               selection at many genomic sites to complex demography,
+               population structure, and ecological interactions. Such models
+               can generally be implemented as individual-based forward
+               simulations, but the large computational overhead of these
+               models often makes simulation of whole chromosome sequences in
+               large populations infeasible. This situation presents an
+               important obstacle to the field that requires conceptual
+               advances to overcome. The recently developed tree-sequence
+               recording method (Kelleher et al., 2018), which stores the
+               genealogical history of all genomes in the simulated population,
+               could provide such an advance. This method has several benefits:
+               (1) it allows neutral mutations to be omitted entirely from
+               forward-time simulations and added later, thereby dramatically
+               improving computational efficiency; (2) it allows neutral
+               burn-in to be constructed extremely efficiently after the fact,
+               using ``recapitation''; (3) it allows direct examination and
+               analysis of the genealogical trees along the genome; and (4) it
+               provides a compact representation of a population9s genealogy
+               that can be analyzed in Python using the msprime package. We
+               have implemented the tree-sequence recording method in SLiM 3 (a
+               free, open-source evolutionary simulation software package) and
+               extended it to allow the recording of non-neutral mutations,
+               greatly broadening the utility of this method. To demonstrate
+               the versatility and performance of this approach, we showcase
+               several practical applications that would have been beyond the
+               reach of previously existing methods, opening up new horizons
+               for the modeling and exploration of evolutionary processes.",
+  journal   = "bioRxiv",
+  publisher = "Cold Spring Harbor Laboratory",
+  pages     = "407783",
+  month     =  sep,
+  year      =  2018,
+  url       = "https://www.biorxiv.org/content/early/2018/09/04/407783",
+  keywords  = "polygenic\_inference\_R01;simbook",
+  language  = "en",
+  doi       = "10.1101/407783"
+}
+
 @ARTICLE{Kelleher2014-ox,
   title    = "Coalescent simulation in continuous space: Algorithms for large
               neighbourhood size",
@@ -330,4 +375,102 @@
   issn     = "0016-6731",
   pmid     = "7498754",
   pmc      = "PMC1206652"
+}
+
+@ARTICLE{Haller2016-id,
+  title    = "{SLiM} 2: Flexible, interactive forward genetic simulations",
+  author   = "Haller, Benjamin C and Messer, Philipp W",
+  abstract = "Modern population genomic datasets hold immense promise for
+              revealing the evolutionary processes operating in natural
+              populations, but a crucial prerequisite for this goal is the
+              ability to model realistic evolutionary scenarios and predict
+              their expected patterns in genomic data. To that end, we present
+              SLiM 2: an evolutionary simulation framework that combines a
+              powerful, fast engine for forward population genetic simulations
+              with the capability of modeling a wide variety of complex
+              evolutionary scenarios. SLiM achieves this flexibility through
+              scriptability, which provides control over most aspects of the
+              simulated evolutionary scenarios with a simple R-like scripting
+              language called Eidos. An example SLiM simulation is presented to
+              illustrate the power of this approach. SLiM 2 also includes a
+              graphical user interface for simulation construction, interactive
+              runtime control, and dynamic visualization of simulation output,
+              facilitating easy and fast model development with quick
+              prototyping and visual debugging. We conclude with a performance
+              comparison between SLiM and two other popular forward genetic
+              simulation packages.",
+  journal  = "Mol. Biol. Evol.",
+  month    =  oct,
+  year     =  2016,
+  url      = "http://dx.doi.org/10.1093/molbev/msw211",
+  keywords = "fwdpy\_paper;polygenic\_inference\_R01;simbook",
+  language = "en",
+  issn     = "0737-4038, 1537-1719",
+  pmid     = "27702775",
+  doi      = "10.1093/molbev/msw211"
+}
+
+@ARTICLE{Messer2013-tf,
+  title    = "{SLiM}: simulating evolution with selection and linkage",
+  author   = "Messer, Philipp W",
+  abstract = "SLiM is an efficient forward population genetic simulation
+              designed for studying the effects of linkage and selection on a
+              chromosome-wide scale. The program can incorporate complex
+              scenarios of demography and population substructure, various
+              models for selection and dominance of new mutations, arbitrary
+              gene structure, and user-defined recombination maps.",
+  journal  = "Genetics",
+  volume   =  194,
+  number   =  4,
+  pages    = "1037--1039",
+  month    =  aug,
+  year     =  2013,
+  url      = "http://dx.doi.org/10.1534/genetics.113.152181",
+  keywords = "background selection; genetic hitchhiking; population genetic
+              simulation;Dec 13 import;fwdpy\_paper;simbook",
+  language = "en",
+  issn     = "0016-6731, 1943-2631",
+  pmid     = "23709637",
+  doi      = "10.1534/genetics.113.152181",
+  pmc      = "PMC3730910"
+}
+
+@ARTICLE{Hudson2002-oo,
+  title    = "Generating samples under a {Wright--Fisher} neutral model of
+              genetic variation",
+  author   = "Hudson, Richard R",
+  journal  = "BIOINFORMATICS APPLICATIONS NOTE",
+  volume   =  18,
+  year     =  2002,
+  keywords = "Dec 13 import;polygenic\_inference\_R01;simbook"
+}
+
+@ARTICLE{Thornton2014-hx,
+  title    = "A C++ template library for efficient forward-time population
+              genetic simulation of large populations",
+  author   = "Thornton, Kevin R",
+  abstract = "fwdpp is a C++ library of routines intended to facilitate the
+              development of forward-time simulations under arbitrary mutation
+              and fitness models. The library design provides a combination of
+              speed, low memory overhead, and modeling flexibility not
+              currently available from other forward simulation tools. The
+              library is particularly useful when the simulation of large
+              populations is required, as programs implemented using the
+              library are much more efficient than other available forward
+              simulation programs.",
+  journal  = "Genetics",
+  volume   =  198,
+  number   =  1,
+  pages    = "157--166",
+  month    =  sep,
+  year     =  2014,
+  url      = "http://dx.doi.org/10.1534/genetics.114.165019",
+  keywords = "population genetics; quantitative genetics;
+              simulation;MyPapers;fwdpy\_paper;Optimum shift
+              paper;fwdpp\_manual;polygenic\_inference\_R01;simbook",
+  language = "en",
+  issn     = "0016-6731, 1943-2631",
+  pmid     = "24950894",
+  doi      = "10.1534/genetics.114.165019",
+  pmc      = "PMC4174927"
 }

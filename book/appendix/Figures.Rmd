@@ -1,0 +1,6 @@
+# Code for generating figures
+
+## Drawing trees {#drawingtreescode}
+
+```{python, code=readLines("chapters/msprime/figures/drawtree.py"), eval=F}
+```

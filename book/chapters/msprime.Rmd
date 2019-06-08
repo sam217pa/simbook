@@ -4,11 +4,34 @@ Kelleher *et al.* [-@Kelleher2016-cb] described a new approach to simulating the
 
 Performance aside, the major benefit of `msprime` is that it is implemented as a Python library rather than as a command-line package. (The `mspms` program mentioned above is installed with `msprime` to provide a command-line interface to a subset of the package's functionality).  Abstracting out the operations into a set of library functions and objects has many advantages.  First, the interface is greatly simplified, especially for complex demographic models, which may now be built up in "chunks" of Python logic (and comments, too!).  Second, much of the analysis of the simulation can be done in-memory, completely avoiding the need to write output to files.  
 
+This chapter is a short tour of `msprime`'s key features. I strongly encourage you to read the [manual](http://msprime.readthedocs.io), as well as a tutorial by Jerome Kelleher (CITATION when it comes out).
+
 ## Obtaining msprime
 
 * [Source code](http://github.com/tskit-dev/msprime) is on github.
 * The [manual](http://msprime.readthedocs.io) is auto-generated on Read The Docs.
 * Binary builds for Linux and OS X are available from [conda-forge](https://anaconda.org/conda-forge/msprime).
+* You may also install via `pip3`.
+
+There are Docker images in the works for `msprime`, but I recommend `conda` for most users, as you have access to "everything" that way.
+
+*Note*: `msprime` is a `python3` package.
+
+## Running a simple simulation
+
+```{python}
+import msprime
+
+# Simulate n=10 genomes
+ts = msprime.simulate(10, mutation_rate=10.,
+                      recombination_rate=10.)
+```
+
+The data type is a tree sequence:
+
+```{python}
+type(ts)
+```
 
 ## Parameter scaling
 
@@ -28,6 +51,48 @@ Figure \@ref(fig:msprimeScaling) shows the ECDF of the number of mutation from $
 knitr::include_graphics("msprime_scaling.png")
 ```
 
-In general, one of the biggest challenges that people have in applying simulations is in dealing with scaling differences between different simulation programs.
+For the examples shown above, `mutation_rate=25.0` implies $N\mu = 0.25$, and `mutation_rate=0.25` implies $0.01N\mu = 0.25$ as we are measuring time in units of $100N$ generations.  Many theory papers present results in units of $2N$ generations and `ms` scales time in units of `4N` generation.  You may set $Ne = 0.5$ or $0.25$, respectively, to obtain those scalings.
+
+For example, if we want to model $\theta = 4N\mu = 100$ and $\rho = 4Nr = 100$, then the following are all equivalent:
+
+```{python, eval=F}
+theta, rho = 100.0, 100.0
+ts = msprime.simulate(10,
+                      mutation_rate=theta/4.,
+                      recombination_rate=theta/4.)
+ts = msprime.simulate(10,
+                      mutation_rate=theta/2.,
+                      recombination_rate=theta/2., Ne=0.5)
+ts = msprime.simulate(10,
+                      mutation_rate=theta,
+                      recombination_rate=theta, Ne=0.25)
+```
+
+Let's take a look at the scaling at work.  We will also see how to run many simulation replicates sequentially, and see one scheme for reproducible seeding:
+
+```{python, code=readLines("chapters/msprime/listings/scaling.py")}
+```
+
+In general, one of the biggest challenges that people have in applying simulations is in dealing with scaling differences between different simulation programs.  I almost always need to resort to pictures on a whiteboard to get the conversions right, especially between different programs.
+
+## Demographic events
+
+### Simple population size changes
+
+### Migration
+
+### Population splits and merges
+
+## Non-uniform genetic maps
+
+## Processing the genealogies
+
+A key feature setting `msprime` apart from other coalescent simulations is a rich API for accessing the genealogies. We can even draw them, as shown in Figure \@ref(fig:drawtree). The code to make this figure is shown in \@ref(drawingtreescode).
+
+```{r drawtree, echo=F, fig.cap="A tree with node times labelled. The SVG output is converted to png with [ImageMagick](www.imagemagick.org)."}
+knitr::include_graphics("drawtree.png")
+```
+
+## Calculating statistics from simulated data
 
 

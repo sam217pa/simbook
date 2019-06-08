@@ -2,12 +2,16 @@ rmd_files:
     latex: ["index.Rmd",
         "chapters/treeseqs.Rmd",
         "chapters/coalescent.Rmd",
-        "chapters/msprime.Rmd"
+        "chapters/msprime.Rmd",
+        "appendix/Appendix.Rmd",
+        "appendix/Figures.Rmd"
         ]
     html: ["index.Rmd",
         "chapters/treeseqs.Rmd",
         "chapters/coalescent.Rmd",
         "chapters/msprime.Rmd",
+        "appendix/Appendix.Rmd",
+        "appendix/Figures.Rmd",
         "chapters/references.Rmd"
         ]
 output_dir: book_output

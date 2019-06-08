@@ -2,10 +2,12 @@ PDFBOOK:=book_output/simbook.pdf
 HTMLBOOK:=book_output/coalescent-simulation.html
 
 RMDFILES:=index.Rmd $(shell find chapters -type f -name '*.Rmd')
+RMDFILES+=$(shell find appendix -type f -name '*.Rmd')
 BIBFILES:=chapters/simbook.bib
 PYLISTINGS:=$(shell find chapters -type f -name '*.py' | grep listings)
 PYTHONPACKAGE:=$(shell find ../simbook -type f -name '*.py' | grep -v __init__)
-PYTHONFIGS=hudson1990.png migration.png msprime_scaling.png
+PYTHONFIGS=hudson1990.png migration.png msprime_scaling.png \
+		   drawtree.png
 
 all: ${PDFBOOK} ${HTMLBOOK}
 
@@ -13,6 +15,7 @@ clean:
 	rm -rf ${PDFBOOK} ${HTMLBOOK} ${PYTHONFIGS} simbook.Rmd book_output/*
 
 ${PDFBOOK}: ${PYTHONFIGS} ${RMDFILES} ${BIBFILES} ${PYLISTINGS}
+	echo ${RMDFILES}
 	RETICULATE_PYTHON=`which python3` PYTHONPATH=.. r -e 'bookdown::render_book("index.Rmd","bookdown::pdf_book",clean=T)'
 
 ${HTMLBOOK}: ${PYTHONFIGS} ${RMDFILES} ${BIBFILES} ${PYLISTINGS}
@@ -26,3 +29,9 @@ migration.png: ../simbook/coalescent/migration.py chapters/coalescent/figures/co
 
 msprime_scaling.png: chapters/coalescent/figures/msprime_scaling.py
 	PYTHONPATH=.. python3 chapters/coalescent/figures/msprime_scaling.py
+
+drawtree.svg: chapters/msprime/figures/drawtree.py
+	python3 $?
+
+drawtree.png: drawtree.svg
+	convert -density 300 drawtree.svg drawtree.png

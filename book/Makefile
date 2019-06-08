@@ -21,11 +21,17 @@ ${PDFBOOK}: ${PYTHONFIGS} ${RMDFILES} ${BIBFILES} ${PYLISTINGS}
 ${HTMLBOOK}: ${PYTHONFIGS} ${RMDFILES} ${BIBFILES} ${PYLISTINGS}
 	RETICULATE_PYTHON=`which python3` PYTHONPATH=.. r -e 'bookdown::render_book("index.Rmd","bookdown::gitbook",clean=T)'
 
+# Figure are starting here
+
+# Coalescent
+
 hudson1990.png: ../simbook/coalescent/hudson1990.py chapters/coalescent/figures/h1990.py
 	PYTHONPATH=.. python3 chapters/coalescent/figures/h1990.py
 
 migration.png: ../simbook/coalescent/migration.py chapters/coalescent/figures/compare_migration_to_msprime.py
 	PYTHONPATH=.. python3 chapters/coalescent/figures/compare_migration_to_msprime.py
+
+# Simulation using msprime
 
 msprime_scaling.png: chapters/coalescent/figures/msprime_scaling.py
 	PYTHONPATH=.. python3 chapters/coalescent/figures/msprime_scaling.py

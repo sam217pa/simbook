@@ -68,11 +68,13 @@ Dick Hudson's `ms` [@Hudson2002-oo] used the `node` data structure above to repr
 
 ## Tree sequences: tables and linked lists
 
-Consider the tree in Figure \@ref(fig:drawtree). It is a genealogy for a sample of $n = 10$ genomes simulated under the Kingman coalescent using `msprime` [@Kelleher2016-cb]. Chapter \@ref(usingmsprime) introduces how to use this software.  The nodes and their times are labelled as `node: time`.  The first $n$ nodes, labelled $[0, n)$, have time zero; these are our sample nodes.  The nodes with labels $\geq n$ are ancestral nodes, and time increases as we move back into the past.
+Consider the tree in Figure \@ref(fig:drawtree). It is a genealogy for a sample of $n = 10$ genomes simulated under the Kingman coalescent using `msprime` [@Kelleher2016-cb]. (Chapter \@ref(usingmsprime) introduces how to use this software.)  The nodes and their times are labelled as `node: time`.  The first $n$ nodes, labelled $[0, n)$, have time zero; these are our sample nodes.  The nodes with labels $\geq n$ are ancestral nodes, and time increases as we move back into the past.
 
 ```{r drawtree, echo=F, fig.cap="A tree with node IDs and times labelled."}
 knitr::include_graphics("drawtree.png")
 ```
+
+Instead of representing the tree as a single linked list, we can represent it as a set of related tables.  For example, a *node table* stores the birth times of each node and is sorted according to birth time (*e.g.* time increasing back into the past), such that the node labels in Figure \@ref(fig:drawtree) are *indexes* into the table.
 
 ## tskit, the "tree sequence toolkit"
 

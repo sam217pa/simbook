@@ -1,1 +1,79 @@
 # Tree sequences {#treeseqs}
+
+This chapter is about data structures for population-genetic simulations with linkage. Our first concern will be data structures appropriate for coalescent simulation, which is the topic of Chapter \@ref(coalescentsim).  The data structures introduced in this chapter will be useful to both coalescent and to forward-time simulation.
+
+This chapter is somewhat oddly-placed, however, as we are introducing data structures before introducing some necessary modeling concepts.  However, the data structures are an important topic on their own, and serve as the basis for several later chapters.  The history of how the various simulation algorithms and programs developed is also interesting, and I am deferring those discussions to other chapters.
+
+## Linked lists
+
+**Note:** This section is somewhat technical, as we discuss the relationship between the code we write and how it interacts with the hardware. We also discuss data structures using the `C` language.  Sadly, if we need to be concerned with performance, we cannot ignore hardware.  Likewise, we probably need to do at least some of our work in a `C`-like language, or something like [Cython](http://www.cython.org), which generates C code from a Python-like grammar. In the future, I expect that we will see `llvm`-based languages like [julia](http://www.julialang.org) make headway into this area.  It is also likely that [rust](http://www.rust-lang.org) will make an appearance, too.
+
+Tree data structures are typically represented as linked lists.  For example, Hudson's `ms` [@Hudson2002-oo] uses a *triply* linked list, where each node on a tree refers to both its parent and its two descendants.  The following block of `C` code is adapted from [@Hudson1990-ff] and shows a standard representation of such a node:
+
+```{c, message=F, results='hide'}
+typedef struct node_t
+{
+	double time;
+	struct node_t *parent, *desc1, *desc2;
+} node;
+```
+
+The `*` in `C`-like languages declares a "pointer", which is a memory address.  Thus, a `node` contains its time and the memory locations of its parent and descendants.  By necessity, the root node of a tree's `parent` is `NULL`, meaning no such node exists, as are the two descendants of all of the tree tips, which represent the present-day sample.
+
+Node data structures like this one allow up/down traversal along a tree. Algorithms on pointer-based data structures like this are covered in over one hundred pages of Knuth's first volume [@Knuth1997-jz].  However, they are not ideal data structures for several reasons:
+
+1. The memory management gets tricky.  One has to be especially careful when errors occur.
+2. The `node` shown above doesn't generalize beyond bifurcating trees (in which each node has exactly two descendants).  Allowing arbitrary numbers of descendants is possible via an array of descendants represented as a pointer to an array of pointers to nodes.  At this point, readers with experience programming in `C` are wincing.
+3. Similarly, we could add additional pointers to nodes to allow tree traversal in directions other than up/down.  We end up with more considerably more complexity.
+4. It is difficult to write these linked lists to disk.
+5. Tree traversal is not especially efficient, which may be viewed as a controversial statement, as pointer-based linked lists are so widely-used in many different contexts.  However, the issue here isn't the data structure itself, but rather the size in memory of the objects in the list.  On a typical system, Hudson's `node` occupies only 32 bytes of memory.  For a tree with, say, thousands of nodes, these small objects may be scattered all over the available memory space of a machine, making retrieving them more costly.  In computer jargon, the data have poor "locality of reference". This issue is much less important for a perhaps more common use of linked lists, such as managing large pools of available memory in the Linux kernel.  If you are interested in more information on how the size of an object affects linked list performance, take a look at this [post](https://isocpp.org/blog/2014/06/stroustrup-lists) from Bjarne Stroustrup, the inventor of C++.
+
+I will note that we can greatly simplify some of the more tedious memory management issues of these data structures with "modern" C++ methods like "smart" pointers (see Meyers [-@Meyers2014-se] for an excellent discussion). However, the remaining points stand.
+
+We may improve performance considerably via the use of arrays:
+
+```{c, results='hide'}
+#include <stdint.h>
+
+typedef struct tree_array_t
+{
+	double time;
+	int32_t * parent, desc1, desc2;
+} tree_array;
+```
+
+Here, for a tree with `n` nodes, we have three arrays of `n` 32-bit integers.  The values of the arrays are indexes, such that `desc1[i]` is the index of the node that is the first descendant of the `i-th` node.  To signify a root node or a tree tip, we will adopt the convention of using `-1` as a `NULL` value, which we must do because the `C` keyword `NULL` cannot be applied to non-pointer types.
+
+Our `tree_array` now solves many of the problems alluded to above, including the performance issue.  By keeping our data in relatively few blocks of *contiguous* memory, locality of reference is improved.  Essentially, modern CPU have such large caches that it is much more likely that the *next* value is already "hot" (loaded into cache) as we traverse a tree.
+
+Another option is something may be more familiar to those with a preference for "object-oriented" programming:
+
+```{c, results="hide"}
+#include <stdint.h>
+
+typedef struct node_object_t
+{
+	double time;
+	int32_t parent, desc1, desc2;
+} node_object;
+
+typedef node_object* tree_array2;
+```
+
+Now, we only have one array containing objects.  Choosing between this "array of structures" versus the "structure of arrays" above is partly a matter of taste, sometimes a matter of performance, and definitely a matter of hardware.  If you want your code to run on a GPU rather than a CPU, the structure of arrays is almost certainly preferred.  Jerome Kelleher and I have exchanged $O(10^6)$ emails on the pros and cons of each approach.
+
+## Trees in Hudson's `ms`
+
+Dick Hudson's `ms` [@Hudson2002-oo] used the `node` data structure above to represent a single bifurcating tree simulated according to the Kingman coalescent process [@Kingman1982-cq, @Tajima1983-it, @Hudson1983-kn, @Hudson1990-ff, @Rosenberg2002-ac, @Wakeley2008-hd].  He used arrays of such trees to represent the many correlated trees arising from recombination [@Hudson1983-lk].
+
+## Tree sequences: tables and linked lists
+
+Consider the tree in Figure \@ref(fig:drawtree). It is a genealogy for a sample of $n = 10$ genomes simulated under the Kingman coalescent using `msprime` [@Kelleher2016-cb]. Chapter \@ref(usingmsprime) introduces how to use this software.  The nodes and their times are labelled as `node: time`.  The first $n$ nodes, labelled $[0, n)$, have time zero; these are our sample nodes.  The nodes with labels $\geq n$ are ancestral nodes, and time increases as we move back into the past.
+
+```{r drawtree, echo=F, fig.cap="A tree with node IDs and times labelled."}
+knitr::include_graphics("drawtree.png")
+```
+
+## tskit, the "tree sequence toolkit"
+
+

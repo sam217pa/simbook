@@ -1,4 +1,8 @@
-# Coalescent simulation
+# Coalescent simulation {#coalescentsim}
+
+## Some history
+
+TBD: ARG/HRG/PSMC/TS
 
 ## Hudson's linear-time algorithm
 

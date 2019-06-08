@@ -23,6 +23,14 @@ ${HTMLBOOK}: ${PYTHONFIGS} ${RMDFILES} ${BIBFILES} ${PYLISTINGS}
 
 # Figure are starting here
 
+# Tree sequences
+
+drawtree.svg: chapters/treeseqs/figures/drawtree.py
+	python3 $?
+
+drawtree.png: drawtree.svg
+	convert -density 300 drawtree.svg drawtree.png
+
 # Coalescent
 
 hudson1990.png: ../simbook/coalescent/hudson1990.py chapters/coalescent/figures/h1990.py
@@ -36,8 +44,3 @@ migration.png: ../simbook/coalescent/migration.py chapters/coalescent/figures/co
 msprime_scaling.png: chapters/msprime/figures/msprime_scaling.py
 	PYTHONPATH=.. python3 chapters/msprime/figures/msprime_scaling.py
 
-drawtree.svg: chapters/msprime/figures/drawtree.py
-	python3 $?
-
-drawtree.png: drawtree.svg
-	convert -density 300 drawtree.svg drawtree.png

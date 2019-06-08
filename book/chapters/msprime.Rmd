@@ -45,7 +45,7 @@ ts = msprime.simulate(10, mutation_rate=25.0)
 tw2 = msprime.simulate(10, mutation_rate=0.25, Ne=100)
 ```
 
-Figure \@ref(fig:msprimeScaling) shows the ECDF of the number of mutation from $10^4$ replicates of each command line, and you can see that they are right on top of one another.
+Figure \@ref(fig:msprimeScaling) shows the ECDF of the number of mutation from $10^4$ replicates of each command line, and you can see that they are right on top of one another.  The figure for the code is in \@ref(msprimescalingcode).
 
 ```{r, msprimeScaling, echo=FALSE, fig.cap="Parameter scaling in msprime"}
 knitr::include_graphics("msprime_scaling.png")

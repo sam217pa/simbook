@@ -1,5 +1,10 @@
 # Code for generating figures
 
+## Parameter scaling in msprime {#msprimescalingcode}
+
+```{python, code=readLines("chapters/msprime/figures/msprime_scaling.py"), eval=F}
+```
+
 ## Drawing trees {#drawingtreescode}
 
 ```{python, code=readLines("chapters/msprime/figures/drawtree.py"), eval=F}

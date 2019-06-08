@@ -33,8 +33,8 @@ migration.png: ../simbook/coalescent/migration.py chapters/coalescent/figures/co
 
 # Simulation using msprime
 
-msprime_scaling.png: chapters/coalescent/figures/msprime_scaling.py
-	PYTHONPATH=.. python3 chapters/coalescent/figures/msprime_scaling.py
+msprime_scaling.png: chapters/msprime/figures/msprime_scaling.py
+	PYTHONPATH=.. python3 chapters/msprime/figures/msprime_scaling.py
 
 drawtree.svg: chapters/msprime/figures/drawtree.py
 	python3 $?

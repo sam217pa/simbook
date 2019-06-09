@@ -76,17 +76,49 @@ knitr::include_graphics("drawtree.png")
 
 Instead of representing the tree as a single linked list, we can represent it as a set of related tables.  For example, a *node table* stores the birth times of each node and is sorted according to birth time (*e.g.* time increasing back into the past), such that the node labels in Figure \@ref(fig:drawtree) are *indexes* into the table.
 
-Let's assume that the tree in Figure \@ref(fig:drawtree) is the tree for a genomic segment corresponding to positions $[a, b)$.
+Define an `edge` as an object connecting parent $i$ to child $j$ with respect to genomic interval $[a, b)$.  For example, an `edge` equal to the tuple `(17, 15, a, b)` would be read as "parent node `17` is the ancestor of child node `15` on the half-open interval $[a, b)$".  There, the parent/child values refer to `indexes` of the node table.
 
-```{r, echo=F}
-nodes = data.frame(index = c(1, 3, 5, 7, 10, 13, 15), time = c(0, 0, 0, 0, 0.036, 0.47, 1.1))
-edges = data.frame(parent = c(10, 10, 13, 13, 15, 15, 17),
-                   child = c(1, 7, 3, 5, 10, 13, 15),
-                   left = rep('a', 7),
-                   right = rep('b', 7))
-knitr::kable(list(nodes,edges), booktabs=T)
-```
+Node and edge tables are the core data structures used in `msprime` [@Kelleher2016-cb], which is the current state-of-the-art of coalescent simulation.  Collectively, these tables allow traversal of individual trees and iteration across correlated trees (which arise due to recombination), and thus represent a "tree sequence" data structure.  Recently, the "guts" of `msprime` that handle tree sequences have been separated into a standalone library, which is the subject of the next section, where we will look in a bit more detail at these data structures.
 
 ## tskit, the "tree sequence toolkit"
 
+The tree sequence toolkit, or `tskit`, is found on [GitHub](http://github.com/tskit-dev/tskit) and the [manual](http://tskit.readthedocs.org) is online.  Fundamentally, it is a `C` library defining the low-level operations needed to create, process, analyze, and store tree sequences.  It also provides a Python interface (available via PyPi or conda), and a `C++` API is in the works.
+
+For our purposes, the easiest way to get a tree sequence is to use `msprime` to generate one.  How to use `msprime` is the subject of Chapter \@ref(usingmsprime).  For now, you may take it for granted that the following code will simulate the tree shown in Figure \@ref(fig:tskittree):
+
+```{python}
+import msprime
+ts = msprime.simulate(5, random_seed=42)
+print(type(ts))
+```
+
+```{r tskittree, echo=F, fig.cap="A tree simulated using msprime. Node indexes and times are labelled."}
+knitr::include_graphics("tskittree.png")
+```
+
+The node indexes and their times may be obtained as follows:
+
+```{python}
+for i, n in enumerate(ts.tables.nodes):
+    print(f"{i}, {n.time:.3}")
+```
+
+The `(parent, child, left, right)` value representing the edge table are:
+
+```{python}
+for i in ts.tables.edges:
+    print(f"{i.parent} {i.child} {i.left} {i.right}")
+```
+
+## Tree sequence indexing
+
+The following code adds a tiny bit of recombination in order to generate exactly two trees, which are shown in Figure \@ref(fig:twotrees).
+
+```{python}
+ts=msprime.simulate(5, recombination_rate=0.4, random_seed=42)
+```
+
+```{r, twotrees, echo=F, fig.cap="A tree simulated using msprime. Node indexes and times are labelled."}
+knitr::include_graphics(c("twotrees0.png", "twotrees1.png"))
+```
 

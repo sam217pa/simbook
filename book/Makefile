@@ -7,12 +7,13 @@ BIBFILES:=chapters/simbook.bib
 PYLISTINGS:=$(shell find chapters -type f -name '*.py' | grep listings)
 PYTHONPACKAGE:=$(shell find ../simbook -type f -name '*.py' | grep -v __init__)
 PYTHONFIGS=hudson1990.png migration.png msprime_scaling.png \
-		   drawtree.png
+		   drawtree.png tskittree.png \
+		   twotrees0.png twotrees1.png
 
 all: ${PDFBOOK} ${HTMLBOOK}
 
 clean:
-	rm -rf ${PDFBOOK} ${HTMLBOOK} ${PYTHONFIGS} simbook.Rmd book_output/*
+	rm -rf ${PDFBOOK} ${HTMLBOOK} ${PYTHONFIGS} simbook.Rmd book_output/* *.svg
 
 ${PDFBOOK}: ${PYTHONFIGS} ${RMDFILES} ${BIBFILES} ${PYLISTINGS}
 	echo ${RMDFILES}
@@ -30,6 +31,24 @@ drawtree.svg: chapters/treeseqs/figures/drawtree.py
 
 drawtree.png: drawtree.svg
 	convert -density 300 drawtree.svg drawtree.png
+
+tskittree.svg: chapters/treeseqs/figures/tskittree.py
+	python3 $?
+
+tskittree.png: tskittree.svg
+	convert -density 300 tskittree.svg tskittree.png
+
+twotrees1.svg: chapters/treeseqs/figures/twotrees.py
+	python3 $?
+
+twotrees1.png: twotrees1.svg
+	convert -density 300 twotrees1.svg twotrees1.png
+
+twotrees0.svg: chapters/treeseqs/figures/twotrees.py
+	python3 $?
+
+twotrees0.png: twotrees0.svg
+	convert -density 300 twotrees0.svg twotrees0.png
 
 # Coalescent
 

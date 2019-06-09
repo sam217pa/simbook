@@ -4,7 +4,7 @@ This chapter is about data structures for population-genetic simulations with li
 
 This chapter is somewhat oddly-placed, however, as we are introducing data structures before introducing some necessary modeling concepts.  However, the data structures are an important topic on their own, and serve as the basis for several later chapters.  The history of how the various simulation algorithms and programs developed is also interesting, and I am deferring those discussions to other chapters.
 
-## Linked lists
+## Linked lists {#linkedlists}
 
 **Note:** This section is somewhat technical, as we discuss the relationship between the code we write and how it interacts with the hardware. We also discuss data structures using the `C` language.  Sadly, if we need to be concerned with performance, we cannot ignore hardware.  Likewise, we probably need to do at least some of our work in a `C`-like language, or something like [Cython](http://www.cython.org), which generates C code from a Python-like grammar. In the future, I expect that we will see `llvm`-based languages like [julia](http://www.julialang.org) make headway into this area.  It is also likely that [rust](http://www.rust-lang.org) will make an appearance, too.
 
@@ -110,15 +110,27 @@ for i in ts.tables.edges:
     print(f"{i.parent} {i.child} {i.left} {i.right}")
 ```
 
-## Tree sequence indexing
+### Tree sequence indexing
 
 The following code adds a tiny bit of recombination in order to generate exactly two trees, which are shown in Figure \@ref(fig:twotrees).
 
+```{python, code=readLines("chapters/treeseqs/figures/treewithrec.py")[3]}
+```
+
+```{r, twotrees, echo=F, fig.cap="Two trees with correlated histories due to recombination."}
+knitr::include_graphics("twotrees.png")
+```
+
+The key difference between `ms` [@Hudson2002-oo] and `msprime` [@Kelleher2016-cb] is that the former stores the two trees in their entirety (using the pointer-based linked lists described in \@ref(linkedlists), while the latter compresses all of the information into node and edge tables:
+
 ```{python}
-ts=msprime.simulate(5, recombination_rate=0.4, random_seed=42)
-```
+import pandas as pd
 
-```{r, twotrees, echo=F, fig.cap="A tree simulated using msprime. Node indexes and times are labelled."}
-knitr::include_graphics(c("twotrees0.png", "twotrees1.png"))
+nodes = pd.DataFrame({'time': ts.tables.nodes.time})
+edges = pd.DataFrame({'parent': ts.tables.edges.parent,
+                      'child': ts.tables.edges.child,
+                      'left': ts.tables.edges.left,
+                      'right': ts.tables.edges.right})
+print(nodes)
+print(edges)
 ```
-

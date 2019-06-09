@@ -8,7 +8,9 @@ PYLISTINGS:=$(shell find chapters -type f -name '*.py' | grep listings)
 PYTHONPACKAGE:=$(shell find ../simbook -type f -name '*.py' | grep -v __init__)
 PYTHONFIGS=hudson1990.png migration.png msprime_scaling.png \
 		   drawtree.png tskittree.png \
-		   twotrees0.png twotrees1.png
+		   twotrees.png
+
+# Cheat sheet: https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
 
 all: ${PDFBOOK} ${HTMLBOOK}
 
@@ -49,6 +51,9 @@ twotrees0.svg: chapters/treeseqs/figures/twotrees.py
 
 twotrees0.png: twotrees0.svg
 	convert -density 300 twotrees0.svg twotrees0.png
+
+twotrees.png: twotrees0.png twotrees1.png
+	convert +append $^ $@
 
 # Coalescent
 

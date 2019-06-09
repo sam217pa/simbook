@@ -13,13 +13,15 @@ class EdgeTableIndex(object):
 
 
 def index_edge_table(ts):
-    I, O = [], []
+    inorder, outorder = [], []
     node_times = ts.tables.nodes.time[:]
     for e in ts.tables.edges:
-        I.append(EdgeTableIndex(
+        inorder.append(EdgeTableIndex(
             e.left, node_times[e.parent], e.parent, e.child))
-        O.append(EdgeTableIndex(
+        outorder.append(EdgeTableIndex(
             e.right, node_times[e.parent], e.parent, e.child))
-    I = sorted(I, key=lambda x: (x.position, x.time, x.parent, x.child))
-    O = sorted(O, key=lambda x: (x.position, -x.time, -x.parent, -x.child))
-    return I, O
+    inorder = sorted(inorder, key=lambda x: (x.position, x.time,
+                                             x.parent, x.child))
+    outorder = sorted(outorder, key=lambda x: (x.position, -x.time,
+                                               -x.parent, -x.child))
+    return inorder, outorder

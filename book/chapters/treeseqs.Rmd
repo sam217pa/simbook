@@ -199,7 +199,7 @@ This method for calculating the total time on a tree is very efficient, with fas
 
 ### Generalized tree traversal
 
-Our `algT` function only update the list of node parents, thus allowing only tip-to-root traversal "up" the tree.  At the time of this writing, `tskit` represents trees via quintuply-linked lists (!!!), the values of which are shown in Figure \@ref(smalltree).  These linked lists allow efficient movement in any direction along a tree.
+Our `algT` function only update the list of node parents, thus allowing only tip-to-root traversal "up" the tree.  At the time of this writing, `tskit` represents trees via quintuply-linked lists (!!!), the values of which are shown in Figure \@ref(fig:smalltree).  These linked lists allow efficient movement in any direction along a tree.
 
 ```{r smalltree, echo=F, fig.cap="A tree with each node labelled with according to `index: parent, left child, right child, left sibling, right sibling`.  Each value refers to an index into the node table and -1 is a NULL value."}
 knitr::include_graphics("smalltree.png")

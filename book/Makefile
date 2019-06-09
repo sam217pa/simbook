@@ -8,14 +8,15 @@ PYLISTINGS:=$(shell find chapters -type f -name '*.py' | grep listings)
 PYTHONPACKAGE:=$(shell find ../simbook -type f -name '*.py' | grep -v __init__)
 PYTHONFIGS=hudson1990.png migration.png msprime_scaling.png \
 		   drawtree.png tskittree.png \
-		   twotrees.png
+		   twotrees.png smalltree.png \
+		   nonbifurcating.png
 
 # Cheat sheet: https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
 
 all: ${PDFBOOK} ${HTMLBOOK}
 
 clean:
-	rm -rf ${PDFBOOK} ${HTMLBOOK} ${PYTHONFIGS} simbook.Rmd book_output/* *.svg
+	rm -rf ${PDFBOOK} ${HTMLBOOK} ${PYTHONFIGS} simbook.Rmd book_output/* *.svg *.png
 
 ${PDFBOOK}: ${PYTHONFIGS} ${RMDFILES} ${BIBFILES} ${PYLISTINGS}
 	echo ${RMDFILES}
@@ -54,6 +55,18 @@ twotrees0.png: twotrees0.svg
 
 twotrees.png: twotrees0.png twotrees1.png
 	convert +append $^ $@
+
+smalltree.svg: chapters/treeseqs/figures/smalltree.py
+	python3 $?
+
+smalltree.png: smalltree.svg
+	convert -density 300 $? $@
+
+nonbifurcating.svg: chapters/treeseqs/figures/nonbifurcating.py
+	python3 $?
+
+nonbifurcating.png: nonbifurcating.svg
+	convert -density 300 $? $@
 
 # Coalescent
 

@@ -158,6 +158,8 @@ for o in outorder:
     print(o)
 ```
 
+These two lists tell us what nodes are coming into, and exiting from, trees whose left edge is at position $x$.  Within each list, the sorting order with respect to parent node time gives us the order in which to apply these changes so that they propagate correctly through the tree.  The following code implements `Algorithms T` described in [@Kelleher2016-cb]:
+
 ```{python}, code=readLines("chapters/treeseqs/listings/algT.py")}
 ```
 
@@ -207,7 +209,7 @@ knitr::include_graphics("smalltree.png")
 
 For a simple bifurcating tree, the `parent` and two `child` fields need little explanation.  The `sibling` fields are a bit tricky at first, but they simply serve to "bracket" the set of nodes with the same parent--a value of `-1` means there are no further nodes with the current parent in the direction that you are looking.
 
-Where this data structure gets interesting is for non-bifurcating trees, such as that shown in Figure \@ref(fig:nonbifurcating).  Here, left and right child refer to the *leftmost* and *rightmost* children of a node, and the sibling relationships allow iteration through these larger families.
+Where this data structure gets interesting is for non-bifurcating trees (Figure \@ref(fig:nonbifurcating)).  Here, left and right child refer to the *leftmost* and *rightmost* children of a node, and the sibling relationships allow iteration through these larger families.
 
 ```{r nonbifurcating, echo=F, fig.cap="A non-bifurcating tree."}
 knitr::include_graphics("nonbifurcating.png")

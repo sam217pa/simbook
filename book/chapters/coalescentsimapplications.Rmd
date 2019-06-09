@@ -1,0 +1,12 @@
+# Applications of coalescent simulation
+
+## Building intuition about models
+
+### The importance of breaking things
+
+## Classical hypothesis testing
+
+## Approximate Bayesian Computation ("ABC")
+
+## Supervised machine learning
+

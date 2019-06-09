@@ -3,6 +3,7 @@ rmd_files:
         "chapters/treeseqs.Rmd",
         "chapters/coalescent.Rmd",
         "chapters/msprime.Rmd",
+        "chapters/forwardsim.Rmd",
         "appendix/Appendix.Rmd",
         "appendix/Figures.Rmd"
         ]
@@ -10,6 +11,7 @@ rmd_files:
         "chapters/treeseqs.Rmd",
         "chapters/coalescent.Rmd",
         "chapters/msprime.Rmd",
+        "chapters/forwardsim.Rmd",
         "appendix/Appendix.Rmd",
         "appendix/Figures.Rmd",
         "chapters/references.Rmd"

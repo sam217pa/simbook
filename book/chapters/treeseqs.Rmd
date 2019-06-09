@@ -121,7 +121,7 @@ The following code adds a tiny bit of recombination in order to generate exactly
 knitr::include_graphics("twotrees.png")
 ```
 
-The key difference between `ms` [@Hudson2002-oo] and `msprime` [@Kelleher2016-cb] is that the former stores the two trees in their entirety (using the pointer-based linked lists described in \@ref(linkedlists), while the latter compresses all of the information into node and edge tables:
+The key difference between `ms` [@Hudson2002-oo] and `msprime` [@Kelleher2016-cb] is that the former stores the two trees in their entirety (using arrays of the pointer-based linked lists described in \@ref(linkedlists), while the latter compresses all of the information into node and edge tables:
 
 ```{python}
 import pandas as pd
@@ -134,3 +134,36 @@ edges = pd.DataFrame({'parent': ts.tables.edges.parent,
 print(nodes)
 print(edges)
 ```
+
+**Note:** By convention, genomes in `ms` and `msprime` are represented as continuous, half-open intervals, $[0, 1)$.  Thus, the "genome length" for our tree sequence is `1.0`.
+
+The two trees in Figure \@ref(fig:twotrees) are very similar.  So are their edge tables--and edge spanning $[0, 1)$ represents a parent/child relationship along the entire simulated genome.  In other words, the parent/child lists required to describe both trees are very similar.  The key feature behind the performance improvement of tree sequences over arrays of linked lists is that we may efficiently generate *input* and *output* indexes of the edge table that tell us the minimal number of changes to make in the representation of the "current" tree in order to represent the "next" tree in a sequence.
+
+The *input* index is sorted by *increasing* left edge and *increasing* parental node time.  The *output* index is sorted by *increasing* right edge and *decreasing* parental node time.  Let's implement the indexing scheme:
+
+```{python, code=readLines("chapters/treeseqs/listings/index_edge_table.py")}
+```
+
+Apply the function and look at the results:
+
+```{python}
+inorder, outorder = index_edge_table(ts)
+for i in inorder:
+    print(i)
+```
+
+
+```{python}
+for o in outorder:
+    print(o)
+```
+
+```{python}, code=readLines("chapters/treeseqs/listings/algT.py")}
+```
+
+```{python}
+for left, parents in algT(ts):
+    print(left, parents)
+```
+
+The indexing of the edge table allows for very efficient iteration along a genome.  However, the indexing itself is relatively expensive, requiring the creation of two arrays equal in length to the edge table and then sorting each array.  The array creation operations are $O(N)$ each and the sorting steps are both $O(Nlog(N))$.

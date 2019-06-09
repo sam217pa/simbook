@@ -78,6 +78,15 @@ Instead of representing the tree as a single linked list, we can represent it as
 
 Let's assume that the tree in Figure \@ref(fig:drawtree) is the tree for a genomic segment corresponding to positions $[a, b)$.
 
+```{r, echo=F}
+nodes = data.frame(index = c(1, 3, 5, 7, 10, 13, 15), time = c(0, 0, 0, 0, 0.036, 0.47, 1.1))
+edges = data.frame(parent = c(10, 10, 13, 13, 15, 15, 17),
+                   child = c(1, 7, 3, 5, 10, 13, 15),
+                   left = rep('a', 7),
+                   right = rep('b', 7))
+knitr::kable(list(nodes,edges), booktabs=T)
+```
+
 ## tskit, the "tree sequence toolkit"
 
 

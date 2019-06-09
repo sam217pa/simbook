@@ -60,7 +60,7 @@ typedef struct node_object_t
 typedef node_object* tree_array2;
 ```
 
-Now, we only have one array containing objects.  Choosing between this "array of structures" versus the "structure of arrays" above is partly a matter of taste, sometimes a matter of performance, and definitely a matter of hardware.  If you want your code to run on a GPU rather than a CPU, the structure of arrays is almost certainly preferred.  Jerome Kelleher and I have exchanged $O(10^6)$ emails on the pros and cons of each approach.
+Now, we only have one array containing objects.  Choosing between this "array of structures" (AoS) versus the "structure of arrays" (SoA) above is partly a matter of taste, sometimes a matter of performance, and definitely a matter of hardware.  If you want your code to run on a GPU rather than a CPU, the structure of arrays is almost certainly preferred.  Jerome Kelleher and I have exchanged $O(10^6)$ emails on the pros and cons of each approach, and there is no clear winner.  The SoA layout is challenging for certain cases, such as sorting.  If the entire data need sorting, one often has to copy the data into an AoS layout for sorting, and then rebuild the original SoA data in sorted order.  On the other hand, AoS layouts may not be readily compatible with high-performance libraries for array data (although tools like [Apache Arrow](http://arrow.apache.org) do support such concepts).
 
 ## Trees in Hudson's `ms`
 
@@ -75,6 +75,8 @@ knitr::include_graphics("drawtree.png")
 ```
 
 Instead of representing the tree as a single linked list, we can represent it as a set of related tables.  For example, a *node table* stores the birth times of each node and is sorted according to birth time (*e.g.* time increasing back into the past), such that the node labels in Figure \@ref(fig:drawtree) are *indexes* into the table.
+
+Let's assume that the tree in Figure \@ref(fig:drawtree) is the tree for a genomic segment corresponding to positions $[a, b)$.
 
 ## tskit, the "tree sequence toolkit"
 

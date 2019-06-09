@@ -168,7 +168,7 @@ for left, parents in algT(ts):
     print(left, parents)
 ```
 
-The indexing of the edge table allows for very efficient iteration along a genome.  However, the indexing itself is relatively expensive, requiring the creation of two arrays equal in length to the edge table and then sorting each array.  The array creation operations are $O(N)$ each and the sorting steps are both $O(Nlog(N))$.
+The indexing of the edge table allows for very efficient iteration along a genome.  However, the indexing itself is relatively expensive, requiring the creation of two arrays equal in length to the edge table and then sorting each array.  The array creation operations are $O(N)$ each and the sorting steps are both $O(Nlog(N))$. In principle, both steps may be parallelized, although this is currently not done in practice.  The array creation is trivial to parallelize after allocation, as non-overlapping writes to the new arrays would be straightforward to orchestrates.  Parallel sort implementations are available in some cases.  In fact, the `C++17` language standard adds parallel versions of `std::transform`, `std::sort`, and `std::stable_sort`.  While that version of `C++` is currently too "bleeding edge" at the moment, and is only supported in `GCC 9` (See Appendix \@ref(languagestandards)), parallel implementations of some implementations of tree sequence algorithms will appear soon as these newer compilers become more widely-distributed.
 
 Let's use our function to traverse each tree and get the total time:
 

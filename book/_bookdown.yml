@@ -5,7 +5,8 @@ rmd_files:
         "chapters/msprime.Rmd",
         "chapters/forwardsim.Rmd",
         "appendix/Appendix.Rmd",
-        "appendix/Figures.Rmd"
+        "appendix/Figures.Rmd",
+        "appendix/LanguageStandards.Rmd"
         ]
     html: ["index.Rmd",
         "chapters/treeseqs.Rmd",
@@ -14,7 +15,8 @@ rmd_files:
         "chapters/forwardsim.Rmd",
         "appendix/Appendix.Rmd",
         "appendix/Figures.Rmd",
-        "chapters/references.Rmd"
+        "chapters/references.Rmd",
+        "appendix/LanguageStandards.Rmd"
         ]
 output_dir: book_output
 book_filename: simbook.Rmd

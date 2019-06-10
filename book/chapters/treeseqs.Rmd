@@ -211,6 +211,6 @@ For a simple bifurcating tree, the `parent` and two `child` fields need little e
 
 Where this data structure gets interesting is for non-bifurcating trees (Figure \@ref(fig:nonbifurcating)).  Here, left and right child refer to the *leftmost* and *rightmost* children of a node, and the sibling relationships allow iteration through these larger families.
 
-```{r nonbifurcating, echo=F, fig.cap="A non-bifurcating tree."}
+```{r nonbifurcating, echo=F, fig.cap="A non-bifurcating tree. Node labels are as described in Figure \\@ref(fig:smalltree)"}
 knitr::include_graphics("nonbifurcating.png")
 ```

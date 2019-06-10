@@ -214,3 +214,37 @@ Where this data structure gets interesting is for non-bifurcating trees (Figure 
 ```{r nonbifurcating, echo=F, fig.cap="A non-bifurcating tree. Node labels are as described in Figure \\@ref(fig:smalltree)"}
 knitr::include_graphics("nonbifurcating.png")
 ```
+
+#### The history of specific samples
+
+Sample nodes are a key concept when working with tree sequences.  In our example trees so far, the nodes whose time values are `0.0` are the "present-day" samples.  In `tskit`, you may iterate over the samples:
+
+```{python}
+[i for i in ts.samples()]
+```
+
+The linked lists allow for operations such as tip-to-root traversal starting from each sample:
+
+```{python, results='hide'}
+import tskit
+
+for t in ts.trees():
+    for i in ts.samples():
+        u = i
+        while u != tskit.NULL:
+            print(f"{u} has parent {t.parent(u)}")
+            u = t.parent(u)
+```
+
+We may also obtain the samples descending from any node of any tree, which we will do for the tree sequence object corresponding to Figure \@ref(fig:twotrees):
+
+```{python}
+def samples_from_all_nodes_of_first_tree(ts):
+    t = ts.first()
+    for i in t.nodes():
+        yield i, [s for s in t.samples(i)]
+
+for node, samples in samples_from_all_nodes_of_first_tree(ts):
+    print(f"{node} -> {samples}")
+```
+

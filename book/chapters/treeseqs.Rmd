@@ -197,9 +197,34 @@ for t in ts.trees():
 assert times == tskit_times
 ```
 
-This method for calculating the total time on a tree is very efficient, with fast summations over contiguous arrays.   We *could* do even better in principle, by writing a variant of `algT` that adds and subtracts values from the total time as nodes come and go.  However, that approach seems to require a custom algorithm for any new calculation, which defeats the point of a general-purpose toolkit.
+This method for calculating the total time on a tree is very efficient, with fast summations over contiguous arrays.   We *could* do even better in principle, by writing a variant of `algT` that adds and subtracts values from the total time as nodes come and go. The following code block defines a Python class that will track the total time on each tree. As nodes leave trees, the total time is decremented.  As nodes enter trees, it is incremented:
 
-### Generalized tree traversal
+```{python, code=readLines("chapters/treeseqs/listings/total_time.py")}
+```
+
+The following function is a re-implementation of `algT` from above, taking an additional argument that can be any Python object that ["duck types"](https://en.wikipedia.org/wiki/Duck_typing) the interface of our `TotalTime` class:
+
+```{python, code=readLines("chapters/treeseqs/listings/custom_quantity.py")}
+```
+
+We see that the new function and class are easy to use and give the same results as `tskit`, modulo the standard annoyances of floating-point precision:
+
+```{python}
+ttime = TotalTime()
+times = [i for i in custom_quantity(ts, ttime)]
+# Note, we cannot assert array equality here,
+# as we have done our addition/subtraction in a 
+# different order from the tskit implementation.
+# Both, however, are correct, in a strict numerical
+# sense:
+assert np.allclose(times, tskit_times)
+```
+
+The method implemented in `tskit` is the same as the simple Python loop shown above.  Getting the total time on each tree requires $O(E)$ operations for each tree, where $E$ is the length of the edge table.  Our new implementation requires $O(E)$ only for the first tree.  For the remaining trees, changes are only required for the nodes that change from tree to tree.
+
+Unfortunately, the approach taken here doesn't generalize well.  If we require traversal in other directions, our requirements become more complex (see Section \@ref(generalizedtreetraversal)). Also, from a software engineering perspective, supporting such general callbacks on the `C` side of `tskit` would require considerable care.
+
+### Generalized tree traversal {#generalizedtreetraversal}
 
 Our `algT` function only update the list of node parents, thus allowing only tip-to-root traversal "up" the tree.  At the time of this writing, `tskit` represents trees via quintuply-linked lists (!!!), the values of which are shown in Figure \@ref(fig:smalltree).  These linked lists allow efficient movement in any direction along a tree.
 
@@ -239,12 +264,10 @@ for t in ts.trees():
 We may also obtain the samples descending from any node of any tree, which we will do for the tree sequence object corresponding to Figure \@ref(fig:twotrees):
 
 ```{python}
-def samples_from_all_nodes_of_first_tree(ts):
-    t = ts.first()
+for t in ts.trees():
     for i in t.nodes():
-        yield i, [s for s in t.samples(i)]
-
-for node, samples in samples_from_all_nodes_of_first_tree(ts):
-    print(f"{node} -> {samples}")
+        samples = [s for s in t.samples(i)]
+        left, right = t.interval
+        print(f"tree ({left:0.2}, {right:0.2}), node {i} -> samples {samples}")
 ```
 

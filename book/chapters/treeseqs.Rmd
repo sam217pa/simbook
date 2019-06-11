@@ -20,15 +20,15 @@ typedef struct node_t
 
 The `*` in `C`-like languages declares a "pointer", which is a memory address.  Thus, a `node` contains its time and the memory locations of its parent and descendants.  By necessity, the root node of a tree's `parent` is `NULL`, meaning no such node exists, as are the two descendants of all of the tree tips, which represent the present-day sample.
 
-Node data structures like this one allow up/down traversal along a tree. Algorithms on pointer-based data structures like this are covered in over one hundred pages of Knuth's first volume [@Knuth1997-jz].  However, they are not ideal data structures for several reasons:
+Node data structures like this one allow up/down traversal along a tree. Algorithms on pointer-based data structures like this are covered in over one hundred pages of Knuth's first volume [@Knuth1997-jz].  However, they are tricky data structures for several reasons:
 
-1. The memory management gets tricky.  One has to be especially careful when errors occur.
+1. The memory management is nuanced.  One has to be especially careful when errors occur.
 2. The `node` shown above doesn't generalize beyond bifurcating trees (in which each node has exactly two descendants).  Allowing arbitrary numbers of descendants is possible via an array of descendants represented as a pointer to an array of pointers to nodes.  At this point, readers with experience programming in `C` are wincing.
 3. Similarly, we could add additional pointers to nodes to allow tree traversal in directions other than up/down.  We end up with more considerably more complexity.
 4. It is difficult to write these linked lists to disk.
 5. Tree traversal is not especially efficient, which may be viewed as a controversial statement, as pointer-based linked lists are so widely-used in many different contexts.  However, the issue here isn't the data structure itself, but rather the size in memory of the objects in the list.  On a typical system, Hudson's `node` occupies only 32 bytes of memory.  For a tree with, say, thousands of nodes, these small objects may be scattered all over the available memory space of a machine, making retrieving them more costly.  In computer jargon, the data have poor "locality of reference". This issue is much less important for a perhaps more common use of linked lists, such as managing large pools of available memory in the Linux kernel.  If you are interested in more information on how the size of an object affects linked list performance, take a look at this [post](https://isocpp.org/blog/2014/06/stroustrup-lists) from Bjarne Stroustrup, the inventor of C++.
 
-I will note that we can greatly simplify some of the more tedious memory management issues of these data structures with "modern" C++ methods like "smart" pointers (see Meyers [-@Meyers2014-se] for an excellent discussion). However, the remaining points stand.
+I will note that we can greatly simplify some of the more tedious memory management issues of these data structures with "modern" C++ methods like "smart" pointers (see Meyers [-@Meyers2014-se] for an excellent discussion). Locality of reference issues may be partially mitigated by advanced memory management techniques like memory pools, but the availability and utility of such methods are language- and platform-dependent.
 
 We may improve performance considerably via the use of arrays:
 

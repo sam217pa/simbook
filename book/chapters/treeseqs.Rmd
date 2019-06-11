@@ -220,7 +220,7 @@ times = [i for i in custom_quantity(ts, ttime)]
 assert np.allclose(times, tskit_times)
 ```
 
-The method implemented in `tskit` is the same as the simple Python loop shown above.  Getting the total time on each tree requires $O(E)$ operations for each tree, where $E$ is the length of the edge table.  Our new implementation requires $O(E)$ only for the first tree.  For the remaining trees, changes are only required for the nodes that change from tree to tree.
+The method implemented in `tskit` is the same as the simple Python loop shown above.  Getting the total time on each tree requires $O(E)$ operations for each tree, where $E$ is the length of the edge table.  Our new implementation requires $O(E)$ only for the first tree.  For the remaining trees, changes are only required for the nodes that change from tree to tree.  To avoid misleading anyone, I am not suggesting that the Python implementation shown above would outperform `tskit`.  Rather, I suspect the opposite--the inherent speed differences between `C` and Python can often blow aside differences predicted by big-$O$ considerations.
 
 Unfortunately, the approach taken here doesn't generalize well.  If we require traversal in other directions, our requirements become more complex (see Section \@ref(generalizedtreetraversal)). Also, from a software engineering perspective, supporting such general callbacks on the `C` side of `tskit` would require considerable care.
 

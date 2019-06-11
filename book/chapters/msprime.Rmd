@@ -35,8 +35,8 @@ type(ts)
 
 ## Parameter scaling
 
-By default, `msprime` using a scaling of `N` generations in the Python package.  Parameters like the mutation and recombination rates are in these units.
-Thus, the default "scaled mutation rate" is $N\mu$, where $\mu$ is the neutral mutation rate (per haploid genome, per generation), and the following two command lines would give results that are identical in distribution:
+By default, `msprime` uses a scaling of `N` generations in the Python package.  Parameters like the mutation and recombination rates are in these units.
+Thus, the default "scaled mutation rate" is $N\mu$, where $\mu$ is the neutral mutation rate (per haploid genome, per generation), and the following two lines of code would give results that are identical in distribution when many replicates are run:
 
 ```{python}
 import msprime
@@ -77,11 +77,87 @@ In general, one of the biggest challenges that people have in applying simulatio
 
 ## Demographic events
 
-### Simple population size changes
+### Exponential growth
 
-### Migration
+```{python}
+config = [msprime.PopulationConfiguration(sample_size=10,
+                                          initial_size=1,
+                                          growth_rate=1e-4)]
+ts = msprime.simulate(population_configurations=config,
+                      random_seed=42)
+```
+
+### Discrete population size changes
+
+```{python}
+size_changes = [msprime.PopulationParametersChange(time=0.01,
+                                                   initial_size=0.1,
+                                                   population_id=0),
+                msprime.PopulationParametersChange(time=0.025,
+                                                   initial_size=1.0,
+                                                   population_id=0)]
+ts = msprime.simulate(10, random_seed=42,
+                      demographic_events=size_changes)
+```
+
+### Multiple populations
+
+Simulations with multiple demes require some forethought.  If we simply set a `config` variable listing sample sizes of different populations over time, we get an invalid model.  By default, there is no migration amongst the subpopulations, meaning an infinite time to the final coalescent event.
+
+In the following block, `config` sets up two populations of 5 genomes each.  That is all--no migration, and the two populations never come into contact.  If we attempt to simulate with this model, `msprime` will raise an exception.  Fortunately, `msprime` contains a handy tool, `DemographyDebugger`, which prints out the model in rather plain terms.
+
+```{python}
+config = [msprime.PopulationConfiguration(sample_size=5),
+          msprime.PopulationConfiguration(sample_size=5)]
+dd = msprime.DemographyDebugger(population_configurations=config)
+# In a regular Python session, dd.print_history()
+# will write to the screen.  Here, however,
+# I need to write to a file in order to
+# get something that I may display in 
+# this format:
+with open('history.txt', 'w') as f:
+    dd.print_history(f)
+```
+
+Taking a look at our history, we see two populations with no migration.  We cannot run this model:
+
+```{r, code=readLines('history.txt'), eval=F}
+```
+
+The following adds in a "mass migration" event moving all of population one into population zero at three time units in the past:
+
+```{python}
+demographic_events = [msprime.MassMigration(time=3.0,
+                                            source=1,
+                                            destination=0)]
+dd = msprime.DemographyDebugger(population_configurations=config,
+                                demographic_events=demographic_events)
+with open('history.txt', 'w') as f:
+    dd.print_history(f)
+```
+
+Our history log now shows the merge event, which gives us a valid model:
+
+```{r, code=readLines('history.txt'), eval=F}
+```
+
+Now we have a valid model, which we can run to generate Figure \@ref(fig:multipops).  The code generating that figure is shown below,
+where we also see some of `tskit`'s features for drawing trees.  (The SVG files are not easily incorporated into pdf or html output, so
+we use the `convert` utility from [ImageMagick](http://www.imagemagick.org) to convert them to png.  This method is used for all of the trees
+shown in this book.)
+
+```{python, code=readLines("chapters/msprime/figures/multipops.py"), eval=F}
+```
+
+```{r multipops, echo=F, fig.cap="Genealogy of two demes without migration, with the populations merging $3N$ generations ago.  Node times are labelled.  A node colored black is found in population 0, and red refers to population 1."}
+knitr::include_graphics("multipops.png")
+```
+
+#### Migration
 
 ### Population splits and merges
+
+## Ancient samples
 
 ## Non-uniform genetic maps
 

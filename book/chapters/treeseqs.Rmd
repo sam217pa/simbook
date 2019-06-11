@@ -271,3 +271,25 @@ for t in ts.trees():
         print(f"tree ({left:0.2}, {right:0.2}), node {i} -> samples {samples}")
 ```
 
+At this point, it is useful to be aware that we do not require that all "samples" be from the same time point. Rather, one can define nodes at any time to be samples. By way of example, let's force an older node in the tree sequence for \@ref(fig:twotrees) to be considered a sample:
+
+```{python}
+import copy
+
+# Copy the tables from the current tree sequence
+tables = copy.deepcopy(ts.tables)
+# Copy the current node flags.  0 = not a sample, 1 = a sample
+current_flags = tables.nodes.flags
+# Make node 7 a sample
+current_flags[7] = 1
+# Do a "hard set" of the node table.
+tables.nodes.set_columns(flags=current_flags, time=tables.nodes.time)
+# Create a new tree sequence from our modified tables
+ts_new = tables.tree_sequence()
+# Finally, view our new list of samples and their times
+ts_new.samples()
+ts_new.tables.nodes.time[ts_new.samples()]
+```
+
+This example is not particularly useful.  However, there are many applications for tracking nodes associated with older samples (see Schraiber [-@Schraiber2018-ph] for one recent example), and we will revisit this concept in later chapters.
+

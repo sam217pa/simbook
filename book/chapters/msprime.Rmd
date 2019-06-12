@@ -4,7 +4,8 @@ Kelleher *et al.* [-@Kelleher2016-cb] described a new approach to simulating the
 
 Performance aside, the major benefit of `msprime` is that it is implemented as a Python library rather than as a command-line package. (The `mspms` program mentioned above is installed with `msprime` to provide a command-line interface to a subset of the package's functionality).  Abstracting out the operations into a set of library functions and objects has many advantages.  First, the interface is greatly simplified, especially for complex demographic models, which may now be built up in "chunks" of Python logic (and comments, too!).  Second, much of the analysis of the simulation can be done in-memory, completely avoiding the need to write output to files.  
 
-This chapter is a short tour of `msprime`'s key features. I strongly encourage you to read the [manual](http://msprime.readthedocs.io), as well as a tutorial by Jerome Kelleher (CITATION when it comes out).
+This chapter is a short tour of `msprime`'s key features. I strongly encourage you to read the [manual](http://msprime.readthedocs.io), as well as a tutorial by Jerome Kelleher (CITATION when it comes out).  Much of the material here is complementary to the  "Tutorial" section of the [manual](http://msprime.readthedocs.io).
+
 
 ## Obtaining msprime
 
@@ -127,9 +128,11 @@ Taking a look at our history, we see two populations with no migration.  We cann
 The following adds in a "mass migration" event moving all of population one into population zero at three time units in the past:
 
 ```{python}
+# Note: proportion = 1.0 is the default
 demographic_events = [msprime.MassMigration(time=3.0,
                                             source=1,
-                                            destination=0)]
+                                            destination=0,
+                                            proportion=1.0)]
 dd = msprime.DemographyDebugger(population_configurations=config,
                                 demographic_events=demographic_events)
 with open('history.txt', 'w') as f:
@@ -155,7 +158,79 @@ knitr::include_graphics("multipops.png")
 
 #### Migration
 
+We can easily set up migration matrices using `numpy`.  The diagonal elements must all be zero, and the off-diagonal values are the migration rates between subpopulations:
+
+```{python}
+m = np.zeros(4).reshape(2,2)
+# This use of np.eye is a bit tricky,
+# and worth working out what it is doing:
+m[~np.eye(m.shape[0], dtype=bool)] = 1e-3
+
+dd = msprime.DemographyDebugger(population_configurations=config,
+                                migration_matrix=m)
+with open('history.txt', 'w') as f:
+    dd.print_history(f)
+```
+
+```{r, code=readLines('history.txt'), eval=F}
+```
+
+We may add in changes to the migration matrix:
+
+```{python}
+migchanges = [msprime.MigrationRateChange(time=0.5, rate=1e-6,
+                                          matrix_index=(0,1))]
+dd = msprime.DemographyDebugger(population_configurations=config,
+                                migration_matrix=m,
+                                demographic_events=migchanges)
+with open('history.txt', 'w') as f:
+    dd.print_history(f)
+```
+
+```{r, code=readLines('history.txt'), eval=F}
+```
+
 ### Population splits and merges
+
+This is a population split, thinking *forwards* in time:
+
+```{python}
+c = [msprime.PopulationConfiguration(5),
+     msprime.PopulationConfiguration(5)]
+d = [msprime.MassMigration(time=0.1,
+                           source=1,
+                           destination=0,
+                           proportion=1.0)]
+```
+
+The next example is a population merge, where the ancestry of population 0 is 50% from population one, and
+all of the final samples are from population zero. Note that we need some process, either continuous migration or an ancient 
+"mass migration" event, in order to guarantee coalescence:
+
+```{python}
+c = [msprime.PopulationConfiguration(10),
+     msprime.PopulationConfiguration(0)]
+d = [msprime.MassMigration(time=0.1,
+                           source=0,
+                           destination=1,
+                           proportion=0.5),
+     msprime.MigrationRateChange(time=0.1, rate=1e-2)]
+dd = msprime.DemographyDebugger(population_configurations=c,
+                                demographic_events=d)
+with open('history.txt', 'w') as f:
+    dd.print_history(f)
+```
+
+```{r, code=readLines('history.txt'), eval=F}
+```
+
+A tree from this model is shown in Figure \@ref(fig:popsplit).
+
+**TODO:** need to show diagrams of the model, and also discuss that business that we see in the debugger, which is that pop sizes are not affected by rates splits and merges, and what affect that may have.
+
+```{r, popsplit, echo=FALSE, fig.cap="Genealogy of a population split model"}
+knitr::include_graphics("popsplit.png")
+```
 
 ## Ancient samples
 
@@ -164,5 +239,4 @@ knitr::include_graphics("multipops.png")
 ## Processing the genealogies
 
 ## Calculating statistics from simulated data
-
 

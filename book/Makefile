@@ -10,7 +10,7 @@ PYTHONFIGS=hudson1990.png migration.png msprime_scaling.png \
 		   drawtree.png tskittree.png \
 		   twotrees.png smalltree.png \
 		   nonbifurcating.png \
-		   multipops.png
+		   multipops.png popsplit.png
 
 # Cheat sheet: https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
 
@@ -86,3 +86,9 @@ multipops.svg: chapters/msprime/figures/multipops.py
 
 multipops.png: multipops.svg
 	convert -density 300 multipops.svg multipops.png
+
+popsplit.svg: chapters/msprime/figures/popsplit.py
+	python3 $? $@
+
+popsplit.png: popsplit.svg
+	convert -density 300 popsplit.svg popsplit.png

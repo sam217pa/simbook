@@ -9,8 +9,7 @@ PYTHONPACKAGE:=$(shell find ../simbook -type f -name '*.py' | grep -v __init__)
 PYTHONFIGS=hudson1990.png migration.png msprime_scaling.png \
 		   drawtree.png tskittree.png \
 		   twotrees.png smalltree.png \
-		   nonbifurcating.png \
-		   multipops.png popsplit.png
+		   nonbifurcating.png 
 
 # Cheat sheet: https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
 
@@ -85,14 +84,3 @@ migration.png: ../simbook/coalescent/migration.py chapters/coalescent/figures/co
 msprime_scaling.png: chapters/msprime/figures/msprime_scaling.py
 	PYTHONPATH=.. python3 chapters/msprime/figures/msprime_scaling.py
 
-multipops.svg: chapters/msprime/figures/multipops.py
-	python3 $? $@
-
-multipops.png: multipops.svg
-	convert -density 300 $? $@
-
-popsplit.svg: chapters/msprime/figures/popsplit.py
-	python3 $? $@
-
-popsplit.png: popsplit.svg
-	convert -density 300 $? $@

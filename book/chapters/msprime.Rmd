@@ -75,4 +75,46 @@ Let's take a look at the scaling at work.  We will also see how to run many simu
 
 In general, one of the biggest challenges that people have in applying simulations is in dealing with scaling differences between different simulation programs.  I almost always need to resort to pictures on a whiteboard to get the conversions right, especially between different programs.
 
-$$ Population size changes
+## Population size changes
+
+Let's consider a simple model of a recent population split.  Thinking forwards in time, one large population split into two in the recent past.  Reversing time in our brains, we imagine that we have samples from each of those present-day populations, and that at some recent time in the past, all the lineages from population one suddenly move into population zero.  Let's take a look at this model:
+
+```{python)}
+config = [msprime.PopulationConfiguration(sample_size=100),
+          msprime.PopulationConfiguration(sample_size=100)]
+
+events = [msprime.MassMigration(time=0.025, source=1,
+          dest=0, proportion=1.0)]
+```
+
+```{python}
+d = msprime.DemographyDebugger(population_configurations=config,
+							   demographic_events=events)
+with open("history.txt", 'w') as f:
+	d.print_history(f)
+```
+
+Let's take a look at this model:
+
+```{r, code=readLines('history.txt'), eval=F}
+```
+
+The output of the demography debugger shows that the population sizes remain constant throughout the entire simulation--the value `1` in the two-by-two matrix shows the relative $N_e$ in each epoch. 
+Forwards in time, then, a population of effective size $N_e$ split into two populations of size $N_e$ each.   In other words, population splits and merges do not change the relative population sizes, which is also how `ms` [@Hudson2002-oo] behaves.
+
+Consider instead a model where the ancestral population size is larger than the present-day sizes.  Specifically, an ancestral population of size $2N_e$ split into two populations of size $N_e$ each:
+
+```{python}
+events.append(msprime.PopulationParametersChange(time=0.025,
+												 initial_size=2.0))
+
+d = msprime.DemographyDebugger(population_configurations=config,
+							   demographic_events=events)
+with open("history.txt", 'w') as f:
+	d.print_history(f)
+```
+
+Let's take a look at this model:
+
+```{r, code=readLines('history.txt'), eval=F}
+```

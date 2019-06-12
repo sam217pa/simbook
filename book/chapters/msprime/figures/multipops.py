@@ -22,5 +22,5 @@ t.draw(format="svg", path="multipops.svg",
        # Note the mixing of British
        # and American English. :)
        node_colours=node_colors,
-       height=500, # unit is pixels
+       height=500,  # unit is pixels
        width=600)

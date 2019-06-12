@@ -10,3 +10,8 @@
 ```{python, code=readLines("chapters/msprime/figures/msprime_scaling.py"), eval=F}
 ```
 
+## Population size changes {#popsizescaling}
+
+```{python, code=readLines("chapters/msprime/figures/split_and_Ne.py"), eval=F}
+```
+

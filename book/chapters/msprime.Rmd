@@ -121,6 +121,6 @@ Let's take a look at this model:
 
 Figure \@ref(fig:splitscaling) shows one way in which these modeling assumptions matter.  In larger sample sizes, the proportion of rare derived mutations differs substantially. The details of the impact of the model on sample properties will depend on the time of the split, the relative ancestral population size, and the number of lineages sampled from each population (the sampling is equal in the figure).
 
-```{r, splitscaling, echo=FALSE, fig.cap="Proportion of derived singletons as a function of sample sizes.  The two lines compare the case where deme sizes are unchanged during a population split to the case of a reduction in $N_e$ in the present-day populations.  The sample size shown on the $x$ axis is for both populations.  Results are based on 250 simulated replicates with $\\theta=4N_e\\mu=200$. The values for the standard error of the mean (SEM) are too small to see."}
+```{r, splitscaling, echo=FALSE, fig.cap="Proportion of derived singletons as a function of sample sizes.  The two lines compare the case where deme sizes are unchanged during a population split to the case of a reduction in $N_e$ in the present-day populations.  The sample size shown on the $x$ axis is for both populations.  Results are based on 250 simulated replicates with $\\theta=4N_e\\mu=200$. The values for the standard error of the mean (SEM) are too small to see. The code for this figure is in \\@ref(popsizescaling)"}
 knitr::include_graphics("splitscaling.png")
 ```

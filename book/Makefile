@@ -37,25 +37,25 @@ drawtree.svg: chapters/treeseqs/figures/drawtree.py
 	python3 $?
 
 drawtree.png: drawtree.svg
-	convert -density 300 drawtree.svg drawtree.png
+	convert -density 300  $? $@
 
 tskittree.svg: chapters/treeseqs/figures/tskittree.py
 	python3 $?
 
 tskittree.png: tskittree.svg
-	convert -density 300 tskittree.svg tskittree.png
+	convert -density 300 $? $@
 
 twotrees1.svg: chapters/treeseqs/figures/twotrees.py
 	python3 $?
 
 twotrees1.png: twotrees1.svg
-	convert -density 300 twotrees1.svg twotrees1.png
+	convert -density 300 $? $@
 
 twotrees0.svg: chapters/treeseqs/figures/twotrees.py
 	python3 $?
 
 twotrees0.png: twotrees0.svg
-	convert -density 300 twotrees0.svg twotrees0.png
+	convert -density 300 $? $@
 
 twotrees.png: twotrees0.png twotrees1.png
 	convert +append $^ $@
@@ -89,10 +89,10 @@ multipops.svg: chapters/msprime/figures/multipops.py
 	python3 $? $@
 
 multipops.png: multipops.svg
-	convert -density 300 multipops.svg multipops.png
+	convert -density 300 $? $@
 
 popsplit.svg: chapters/msprime/figures/popsplit.py
 	python3 $? $@
 
 popsplit.png: popsplit.svg
-	convert -density 300 popsplit.svg popsplit.png
+	convert -density 300 $? $@

@@ -35,7 +35,7 @@ type(ts)
 
 ## Parameter scaling
 
-By default, `msprime` uses a scaling of `N` generations in the Python package.  Parameters like the mutation and recombination rates are in these units.
+By default, `msprime` uses a scaling of $N_e$ generations in the Python package, where $N_e$ is the effective population size of a diploid, Wright-Fisher population .  Parameters like the mutation and recombination rates are in these units.
 Thus, the default "scaled mutation rate" is $N\mu$, where $\mu$ is the neutral mutation rate (per haploid genome, per generation), and the following two lines of code would give results that are identical in distribution when many replicates are run:
 
 ```{python}
@@ -129,4 +129,4 @@ knitr::include_graphics("splitscaling.png")
 
 This is a short section, but an importtant one!
 
-The $N_e$ in $N_e\mu$ and $N_er$ refers to the $N_e$ parameter used in `msprime.simulate`, as that constant is how branch time units, and thus branch lengths, are scaled.
+The $N_e$ in $N_e\mu$ and $N_er$ refers to the $N_e$ parameter used in `msprime.simulate`, as that constant is how branch time units, and thus branch lengths, are scaledAdd short intro to the short sectionAdd short intro to the short section...

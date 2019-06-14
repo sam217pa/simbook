@@ -1,4 +1,8 @@
-# Coalescent simulation
+# Coalescent simulation {#coalescentsim}
+
+## Some history
+
+TBD: ARG/HRG/PSMC/TS
 
 ## Hudson's linear-time algorithm
 
@@ -66,7 +70,7 @@ The above code works and is very simple.
 The method is limited, though, as we have represented the tree using the classic
 "list of indexes of parents" approach (CITATION).  A better approach would
 be to modify the above algorithm to generate tree sequence data structures 
-(see [@Kelleher2016-cb] for details), which we do in the following code block,
+(Chapter \@ref(treeseqs)), which we do in the following code block,
 which is part of the source code distributed with this book:
 
 ```{python, code=readLines("../simbook/coalescent/hudson1990.py"), eval=F}

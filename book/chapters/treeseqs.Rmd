@@ -1,1 +1,295 @@
-# Tree sequences
+# Tree sequences {#treeseqs}
+
+This chapter is about data structures for population-genetic simulations with linkage. Our first concern will be data structures appropriate for coalescent simulation, which is the topic of Chapter \@ref(coalescentsim).  The data structures introduced in this chapter will be useful to both coalescent and to forward-time simulation.
+
+This chapter is somewhat oddly-placed, however, as we are introducing data structures before introducing some necessary modeling concepts.  However, the data structures are an important topic on their own, and serve as the basis for several later chapters.  The history of how the various simulation algorithms and programs developed is also interesting, and I am deferring those discussions to other chapters.
+
+## Linked lists {#linkedlists}
+
+**Note:** This section is somewhat technical, as we discuss the relationship between the code we write and how it interacts with the hardware. We also discuss data structures using the `C` language.  Sadly, if we need to be concerned with performance, we cannot ignore hardware.  Likewise, we probably need to do at least some of our work in a `C`-like language, or something like [Cython](http://www.cython.org), which generates C code from a Python-like grammar. In the future, I expect that we will see `llvm`-based languages like [julia](http://www.julialang.org) make headway into this area.  It is also likely that [rust](http://www.rust-lang.org) will make an appearance, too.
+
+Tree data structures are typically represented as linked lists.  For example, Hudson's `ms` [@Hudson2002-oo] uses a *triply* linked list, where each node on a tree refers to both its parent and its two descendants.  The following block of `C` code is adapted from [@Hudson1990-ff] and shows a standard representation of such a node:
+
+```{c, message=F, results='hide'}
+typedef struct node_t
+{
+	double time;
+	struct node_t *parent, *desc1, *desc2;
+} node;
+```
+
+The `*` in `C`-like languages declares a "pointer", which is a memory address.  Thus, a `node` contains its time and the memory locations of its parent and descendants.  By necessity, the root node of a tree's `parent` is `NULL`, meaning no such node exists, as are the two descendants of all of the tree tips, which represent the present-day sample.
+
+Node data structures like this one allow up/down traversal along a tree. Algorithms on pointer-based data structures like this are covered in over one hundred pages of Knuth's first volume [@Knuth1997-jz].  However, they are tricky data structures for several reasons:
+
+1. The memory management is nuanced.  One has to be especially careful when errors occur.
+2. The `node` shown above doesn't generalize beyond bifurcating trees (in which each node has exactly two descendants).  Allowing arbitrary numbers of descendants is possible via an array of descendants represented as a pointer to an array of pointers to nodes.  At this point, readers with experience programming in `C` are wincing.
+3. Similarly, we could add additional pointers to nodes to allow tree traversal in directions other than up/down.  We end up with more considerably more complexity.
+4. It is difficult to write these linked lists to disk.
+5. Tree traversal is not especially efficient, which may be viewed as a controversial statement, as pointer-based linked lists are so widely-used in many different contexts.  However, the issue here isn't the data structure itself, but rather the size in memory of the objects in the list.  On a typical system, Hudson's `node` occupies only 32 bytes of memory.  For a tree with, say, thousands of nodes, these small objects may be scattered all over the available memory space of a machine, making retrieving them more costly.  In computer jargon, the data have poor "locality of reference". This issue is much less important for a perhaps more common use of linked lists, such as managing large pools of available memory in the Linux kernel.  If you are interested in more information on how the size of an object affects linked list performance, take a look at this [post](https://isocpp.org/blog/2014/06/stroustrup-lists) from Bjarne Stroustrup, the inventor of C++.
+
+I will note that we can greatly simplify some of the more tedious memory management issues of these data structures with "modern" C++ methods like "smart" pointers (see Meyers [-@Meyers2014-se] for an excellent discussion). Locality of reference issues may be partially mitigated by advanced memory management techniques like memory pools, but the availability and utility of such methods are language- and platform-dependent.
+
+We may improve performance considerably via the use of arrays:
+
+```{c, results='hide'}
+#include <stdint.h>
+
+typedef struct tree_array_t
+{
+	double time;
+	int32_t * parent, desc1, desc2;
+} tree_array;
+```
+
+Here, for a tree with `n` nodes, we have three arrays of `n` 32-bit integers.  The values of the arrays are indexes, such that `desc1[i]` is the index of the node that is the first descendant of the `i-th` node.  To signify a root node or a tree tip, we will adopt the convention of using `-1` as a `NULL` value, which we must do because the `C` keyword `NULL` cannot be applied to non-pointer types.
+
+Our `tree_array` now solves many of the problems alluded to above, including the performance issue.  By keeping our data in relatively few blocks of *contiguous* memory, locality of reference is improved.  Essentially, modern CPU have such large caches that it is much more likely that the *next* value is already "hot" (loaded into cache) as we traverse a tree.
+
+Another option is something may be more familiar to those with a preference for "object-oriented" programming:
+
+```{c, results="hide"}
+#include <stdint.h>
+
+typedef struct node_object_t
+{
+	double time;
+	int32_t parent, desc1, desc2;
+} node_object;
+
+typedef node_object* tree_array2;
+```
+
+Now, we only have one array containing objects.  Choosing between this "array of structures" (AoS) versus the "structure of arrays" (SoA) above is partly a matter of taste, sometimes a matter of performance, and definitely a matter of hardware.  If you want your code to run on a GPU rather than a CPU, the structure of arrays is almost certainly preferred.  Jerome Kelleher and I have exchanged $O(10^6)$ emails on the pros and cons of each approach, and there is no clear winner.  The SoA layout is challenging for certain cases, such as sorting.  If the entire data need sorting, one often has to copy the data into an AoS layout for sorting, and then rebuild the original SoA data in sorted order.  On the other hand, AoS layouts may not be readily compatible with high-performance libraries for array data (although tools like [Apache Arrow](http://arrow.apache.org) do support such concepts).
+
+## Trees in Hudson's `ms`
+
+Dick Hudson's `ms` [@Hudson2002-oo] used the `node` data structure above to represent a single bifurcating tree simulated according to the Kingman coalescent process [@Kingman1982-cq, @Tajima1983-it, @Hudson1983-kn, @Hudson1990-ff, @Rosenberg2002-ac, @Wakeley2008-hd].  He used arrays of such trees to represent the many correlated trees arising from recombination [@Hudson1983-lk].
+
+## Tree sequences: tables and linked lists
+
+Consider the tree in Figure \@ref(fig:drawtree). It is a genealogy for a sample of $n = 10$ genomes simulated under the Kingman coalescent using `msprime` [@Kelleher2016-cb]. (Chapter \@ref(usingmsprime) introduces this software in more detail and gives references to the key documentation.)  The nodes and their times are labelled as `node: time`.  The first $n$ nodes, labelled $[0, n)$, have time zero; these are our sample nodes.  The nodes with labels $\geq n$ are ancestral nodes, and time increases as we move back into the past.
+
+```{r drawtree, echo=F, fig.cap="A tree with node IDs and times labelled."}
+knitr::include_graphics("drawtree.png")
+```
+
+Instead of representing the tree as a single linked list, we can represent it as a set of related tables.  For example, a *node table* stores the birth times of each node and is sorted according to birth time (*e.g.* time increasing back into the past), such that the node labels in Figure \@ref(fig:drawtree) are *indexes* into the table.
+
+Define an `edge` as an object connecting parent $i$ to child $j$ with respect to genomic interval $[a, b)$.  For example, an `edge` equal to the tuple `(17, 15, a, b)` would be read as "parent node `17` is the ancestor of child node `15` on the half-open interval $[a, b)$".  There, the parent/child values refer to `indexes` of the node table.
+
+Node and edge tables are the core data structures used in `msprime` [@Kelleher2016-cb], which is the current state-of-the-art of coalescent simulation.  Collectively, these tables allow traversal of individual trees and iteration across correlated trees (which arise due to recombination), and thus represent a "tree sequence" data structure.  Recently, the "guts" of `msprime` that handle tree sequences have been separated into a standalone library, which is the subject of the next section, where we will look in a bit more detail at these data structures.
+
+## tskit, the "tree sequence toolkit" {#tskit}
+
+The tree sequence toolkit, or `tskit`, is found on [GitHub](http://github.com/tskit-dev/tskit) and the [manual](http://tskit.readthedocs.org) is online.  Fundamentally, it is a `C` library defining the low-level operations needed to create, process, analyze, and store tree sequences.  It also provides a Python interface (available via PyPi or conda), and a `C++` API is in the works.
+
+For our purposes, the easiest way to get a tree sequence is to use `msprime` to generate one.  How to use `msprime` is the subject of Chapter \@ref(usingmsprime).  For now, you may take it for granted that the following code will simulate the tree shown in Figure \@ref(fig:tskittree):
+
+```{python}
+import msprime
+ts = msprime.simulate(5, random_seed=42)
+print(type(ts))
+```
+
+```{r tskittree, echo=F, fig.cap="A tree simulated using msprime. Node indexes and times are labelled."}
+knitr::include_graphics("tskittree.png")
+```
+
+The node indexes and their times may be obtained as follows:
+
+```{python}
+for i, n in enumerate(ts.tables.nodes):
+    print(f"{i}, {n.time:.3}")
+```
+
+The `(parent, child, left, right)` value representing the edge table are:
+
+```{python}
+for i in ts.tables.edges:
+    print(f"{i.parent} {i.child} {i.left} {i.right}")
+```
+
+### Tree sequence indexing
+
+The following code adds a tiny bit of recombination in order to generate exactly two trees, which are shown in Figure \@ref(fig:twotrees).
+
+```{python, code=readLines("chapters/treeseqs/figures/treewithrec.py")[3]}
+```
+
+```{r, twotrees, echo=F, fig.cap="Two trees with correlated histories due to recombination."}
+knitr::include_graphics("twotrees.png")
+```
+
+The key difference between `ms` [@Hudson2002-oo] and `msprime` [@Kelleher2016-cb] is that the former stores the two trees in their entirety (using arrays of the pointer-based linked lists described in \@ref(linkedlists), while the latter compresses all of the information into node and edge tables:
+
+```{python}
+import pandas as pd
+
+nodes = pd.DataFrame({'time': ts.tables.nodes.time})
+edges = pd.DataFrame({'parent': ts.tables.edges.parent,
+                      'child': ts.tables.edges.child,
+                      'left': ts.tables.edges.left,
+                      'right': ts.tables.edges.right})
+print(nodes)
+print(edges)
+```
+
+**Note:** By convention, genomes in `ms` and `msprime` are represented as continuous, half-open intervals, $[0, 1)$.  Thus, the "genome length" for our tree sequence is `1.0`.
+
+The two trees in Figure \@ref(fig:twotrees) are very similar.  So are their edge tables--and edge spanning $[0, 1)$ represents a parent/child relationship along the entire simulated genome.  In other words, the parent/child lists required to describe both trees are very similar.  The key feature behind the performance improvement of tree sequences over arrays of linked lists is that we may efficiently generate *input* and *output* indexes of the edge table that tell us the minimal number of changes to make in the representation of the "current" tree in order to represent the "next" tree in a sequence.
+
+The *input* index is sorted by *increasing* left edge and *increasing* parental node time.  The *output* index is sorted by *increasing* right edge and *decreasing* parental node time.  Let's implement the indexing scheme:
+
+```{python, code=readLines("chapters/treeseqs/listings/index_edge_table.py")}
+```
+
+Apply the function and look at the results:
+
+```{python}
+inorder, outorder = index_edge_table(ts)
+for i in inorder:
+    print(i)
+```
+
+
+```{python}
+for o in outorder:
+    print(o)
+```
+
+These two lists tell us what nodes are coming into, and exiting from, trees whose left edge is at position $x$.  Within each list, the sorting order with respect to parent node time gives us the order in which to apply these changes so that they propagate correctly through the tree.  The following code implements `Algorithms T` described in [@Kelleher2016-cb]:
+
+```{python}, code=readLines("chapters/treeseqs/listings/algT.py")}
+```
+
+Our function returns the left coordinate of each tree and the corresponding list of parents:
+
+```{python}
+for left, parents in algT(ts):
+    print(left, parents)
+```
+
+The indexing of the edge table allows for very efficient iteration along a genome.  However, the indexing itself is relatively expensive, requiring the creation of two arrays equal in length to the edge table and then sorting each array.  The array creation operations are $O(N)$ each and the sorting steps are both $O(Nlog(N))$. In principle, both steps may be parallelized, although this is currently not done in practice.  The array creation is trivial to parallelize after allocation, as non-overlapping writes to the new arrays would be straightforward to orchestrates.  Parallel sort implementations are available in some cases.  In fact, the `C++17` language standard adds parallel versions of `std::transform`, `std::sort`, and `std::stable_sort`.  While that version of `C++` is currently too "bleeding edge" at the moment, and is only supported in `GCC 9` (See Appendix \@ref(languagestandards)), parallel implementations of some implementations of tree sequence algorithms will appear soon as these newer compilers become more widely-distributed.
+
+Let's use our function to traverse each tree and get the total time:
+
+```{python}
+times = []
+node_times = ts.tables.nodes.time[:]
+for left, parents in algT(ts):
+    tt = 0.0
+    for i in range(len(parents)):
+        if parents[i] != -1:
+            tt += node_times[parents[i]] - node_times[i]
+    times.append(tt)
+print(times)
+```
+
+**TIP** The various arrays representing tables in `tskit` are seen in Python as `numpy` arrays (which themselves are thin layers on top of arrays allocated on the `C` side).  The `x = y[:]` syntax tells `numpy` to create a "view" of an array, meaning that `x` and `y` share the same underlying data buffer.  The `node_times` variable above saves us some typing while not requiring a copy of the data.
+
+We can sanity-check our results using `tskit` directly:
+
+```{python}
+tskit_times = []
+for t in ts.trees():
+    tskit_times.append(t.total_branch_length)
+assert times == tskit_times
+```
+
+This method for calculating the total time on a tree is very efficient, with fast summations over contiguous arrays.   We *could* do even better in principle, by writing a variant of `algT` that adds and subtracts values from the total time as nodes come and go. The following code block defines a Python class that will track the total time on each tree. As nodes leave trees, the total time is decremented.  As nodes enter trees, it is incremented:
+
+```{python, code=readLines("chapters/treeseqs/listings/total_time.py")}
+```
+
+The following function is a re-implementation of `algT` from above, taking an additional argument that can be any Python object that ["duck types"](https://en.wikipedia.org/wiki/Duck_typing) the interface of our `TotalTime` class:
+
+```{python, code=readLines("chapters/treeseqs/listings/custom_quantity.py")}
+```
+
+We see that the new function and class are easy to use and give the same results as `tskit`, modulo the standard annoyances of floating-point precision:
+
+```{python}
+ttime = TotalTime()
+times = [i for i in custom_quantity(ts, ttime)]
+# Note, we cannot assert array equality here,
+# as we have done our addition/subtraction in a 
+# different order from the tskit implementation.
+# Both, however, are correct, in a strict numerical
+# sense:
+assert np.allclose(times, tskit_times)
+```
+
+The method implemented in `tskit` is the same as the simple Python loop shown above.  Getting the total time on each tree requires $O(E)$ operations for each tree, where $E$ is the length of the edge table.  Our new implementation requires $O(E)$ only for the first tree.  For the remaining trees, changes are only required for the nodes that change from tree to tree.  To avoid misleading anyone, I am not suggesting that the Python implementation shown above would outperform `tskit`.  Rather, I suspect the opposite--the inherent speed differences between `C` and Python can often blow aside differences predicted by big-$O$ considerations.
+
+Unfortunately, the approach taken here doesn't generalize well.  If we require traversal in other directions, our requirements become more complex (see Section \@ref(generalizedtreetraversal)). Also, from a software engineering perspective, supporting such general callbacks on the `C` side of `tskit` would require considerable care.
+
+### Generalized tree traversal {#generalizedtreetraversal}
+
+Our `algT` function only update the list of node parents, thus allowing only tip-to-root traversal "up" the tree.  At the time of this writing, `tskit` represents trees via quintuply-linked lists (!!!), the values of which are shown in Figure \@ref(fig:smalltree).  These linked lists allow efficient movement in any direction along a tree.
+
+```{r smalltree, echo=F, fig.cap="A tree with each node labelled as `index: parent, left child, right child, left sibling, right sibling`.  Each value refers to an index into the node table and -1 is a NULL value."}
+knitr::include_graphics("smalltree.png")
+```
+
+For a simple bifurcating tree, the `parent` and two `child` fields need little explanation.  The `sibling` fields are a bit tricky at first, but they simply serve to "bracket" the set of nodes with the same parent--a value of `-1` means there are no further nodes with the current parent in the direction that you are looking.
+
+Where this data structure gets interesting is for non-bifurcating trees (Figure \@ref(fig:nonbifurcating)).  Here, left and right child refer to the *leftmost* and *rightmost* children of a node, and the sibling relationships allow iteration through these larger families.
+
+```{r nonbifurcating, echo=F, fig.cap="A non-bifurcating tree. Node labels are as described in Figure \\@ref(fig:smalltree)"}
+knitr::include_graphics("nonbifurcating.png")
+```
+
+#### The history of specific samples
+
+Sample nodes are a key concept when working with tree sequences.  In our example trees so far, the nodes whose time values are `0.0` are the "present-day" samples.  In `tskit`, you may iterate over the samples:
+
+```{python}
+[i for i in ts.samples()]
+```
+
+The linked lists allow for operations such as tip-to-root traversal starting from each sample:
+
+```{python, results='hide'}
+import tskit
+
+for t in ts.trees():
+    for i in ts.samples():
+        u = i
+        while u != tskit.NULL:
+            print(f"{u} has parent {t.parent(u)}")
+            u = t.parent(u)
+```
+
+We may also obtain the samples descending from any node of any tree, which we will do for the tree sequence object corresponding to Figure \@ref(fig:twotrees):
+
+```{python}
+for t in ts.trees():
+    for i in t.nodes():
+        samples = [s for s in t.samples(i)]
+        left, right = t.interval
+        print(f"tree ({left:0.2}, {right:0.2}), node {i} -> samples {samples}")
+```
+
+At this point, it is useful to be aware that we do not require that all "samples" be from the same time point. Rather, one can define nodes at any time to be samples. By way of example, let's force an older node in the tree sequence for \@ref(fig:twotrees) to be considered a sample:
+
+```{python}
+import copy
+
+# Copy the tables from the current tree sequence
+tables = copy.deepcopy(ts.tables)
+# Copy the current node flags.  0 = not a sample, 1 = a sample
+current_flags = tables.nodes.flags
+# Make node 7 a sample
+current_flags[7] = 1
+# Do a "hard set" of the node table.
+tables.nodes.set_columns(flags=current_flags, time=tables.nodes.time)
+# Create a new tree sequence from our modified tables
+ts_new = tables.tree_sequence()
+# Finally, view our new list of samples and their times
+ts_new.samples()
+ts_new.tables.nodes.time[ts_new.samples()]
+```
+
+This example is not particularly useful.  However, there are many applications for tracking nodes associated with older samples (see Schraiber [-@Schraiber2018-ph] for one recent example), and we will revisit this concept in later chapters.
+

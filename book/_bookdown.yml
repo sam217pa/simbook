@@ -2,13 +2,23 @@ rmd_files:
     latex: ["index.Rmd",
         "chapters/treeseqs.Rmd",
         "chapters/coalescent.Rmd",
-        "chapters/msprime.Rmd"
+        "chapters/msprime.Rmd",
+        "chapters/coalescentsimapplications.Rmd",
+        "chapters/forwardsim.Rmd",
+        "appendix/Appendix.Rmd",
+        "appendix/Figures.Rmd",
+        "appendix/LanguageStandards.Rmd"
         ]
     html: ["index.Rmd",
         "chapters/treeseqs.Rmd",
         "chapters/coalescent.Rmd",
         "chapters/msprime.Rmd",
-        "chapters/references.Rmd"
+        "chapters/coalescentsimapplications.Rmd",
+        "chapters/forwardsim.Rmd",
+        "appendix/Appendix.Rmd",
+        "appendix/Figures.Rmd",
+        "chapters/references.Rmd",
+        "appendix/LanguageStandards.Rmd"
         ]
 output_dir: book_output
 book_filename: simbook.Rmd

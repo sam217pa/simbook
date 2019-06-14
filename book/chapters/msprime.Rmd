@@ -1,1 +1,132 @@
-# Coalescent simulation using msprime
+# Coalescent simulation using msprime {#usingmsprime}
+
+Kelleher *et al.* [-@Kelleher2016-cb] described a new approach to simulating the coalescent with recombination taking advantage of tree sequence data structures (Chapter \@ref(treeseqs)).  They describe an open-source software package called `msprime`, which is an evolution of `ms` [@Hudson2002-oo], which is (or, was) the "industry standard" software for coalescent simulation for the better part of two decades.  Many authors (too many to cite here) have modified `ms` in various ways.  Doing so was often difficult for various reasons, but it was how a large number of researchers cut their teeth on learning how to implement coalescent models.  I think it is safe to say that those days are almost over--the performance improvements of `msprime` over `ms` means that the community is better off investing on code bases using tree sequences.  Further, Kelleher *et al.* [-@Kelleher2016-cb] cleverly decided to provide a command line interface to `msprime` that behaves exactly as `ms` does, meaning that a simple alias in a user's environment can update existing work flows.
+
+Performance aside, the major benefit of `msprime` is that it is implemented as a Python library rather than as a command-line package. (The `mspms` program mentioned above is installed with `msprime` to provide a command-line interface to a subset of the package's functionality).  Abstracting out the operations into a set of library functions and objects has many advantages.  First, the interface is greatly simplified, especially for complex demographic models, which may now be built up in "chunks" of Python logic (and comments, too!).  Second, much of the analysis of the simulation can be done in-memory, completely avoiding the need to write output to files.  
+
+This chapter is an overview of important concepts that one must consider when performing coalescent simulation, illustrated using `msprime`.  We do not give a tutorial on how to use `msprime`, as the online [manual](http://msprime.readthedocs.io) and a tutorial by Jerome Kelleher (CITATION when it appears) do an excellent job of covering interface. I strongly encourage you to look at those documents. Here, we will see several of `msprime`'s features, which you will learn by osmosis if you don't look at the main documentation.
+
+## Obtaining msprime
+
+* [Source code](http://github.com/tskit-dev/msprime) is on github.
+* The [manual](http://msprime.readthedocs.io) is auto-generated on Read The Docs.
+* Binary builds for Linux and OS X are available from [conda-forge](https://anaconda.org/conda-forge/msprime).
+* You may also install via `pip3`.
+
+There are Docker images in the works for `msprime`, but I recommend `conda` for most users, as you have access to "everything" that way.
+
+*Note*: `msprime` is a `python3` package.
+
+## Running a simple simulation
+
+```{python}
+import msprime
+
+# Simulate n=10 genomes
+ts = msprime.simulate(10, mutation_rate=10.,
+                      recombination_rate=10.)
+```
+
+The data type is a tree sequence:
+
+```{python}
+type(ts)
+```
+
+## Parameter scaling
+
+By default, `msprime` uses a scaling of $N_e$ generations in the Python package, where $N_e$ is the effective population size of a diploid, Wright-Fisher population .  Parameters like the mutation and recombination rates are in these units.
+Thus, the default "scaled mutation rate" is $N\mu$, where $\mu$ is the neutral mutation rate (per haploid genome, per generation), and the following two lines of code would give results that are identical in distribution when many replicates are run:
+
+```{python}
+import msprime
+
+ts = msprime.simulate(10, mutation_rate=25.0)
+tw2 = msprime.simulate(10, mutation_rate=0.25, Ne=100)
+```
+
+Figure \@ref(fig:msprimeScaling) shows the ECDF of the number of mutation from $10^4$ replicates of each command line, and you can see that they are right on top of one another.  The figure for the code is in \@ref(msprimescalingcode).
+
+```{r, msprimeScaling, echo=FALSE, fig.cap="Parameter scaling in msprime"}
+knitr::include_graphics("msprime_scaling.png")
+```
+
+For the examples shown above, `mutation_rate=25.0` implies $N\mu = 0.25$, and `mutation_rate=0.25` implies $0.01N\mu = 0.25$ as we are measuring time in units of $100N$ generations.  Many theory papers present results in units of $2N$ generations and `ms` scales time in units of `4N` generation.  You may set $Ne = 0.5$ or $0.25$, respectively, to obtain those scalings.
+
+For example, if we want to model $\theta = 4N\mu = 100$ and $\rho = 4Nr = 100$, then the following are all equivalent:
+
+```{python, eval=F}
+theta, rho = 100.0, 100.0
+ts = msprime.simulate(10,
+                      mutation_rate=theta/4.,
+                      recombination_rate=theta/4.)
+ts = msprime.simulate(10,
+                      mutation_rate=theta/2.,
+                      recombination_rate=theta/2., Ne=0.5)
+ts = msprime.simulate(10,
+                      mutation_rate=theta,
+                      recombination_rate=theta, Ne=0.25)
+```
+
+Let's take a look at the scaling at work.  We will also see how to run many simulation replicates sequentially, and see one scheme for reproducible seeding:
+
+```{python, code=readLines("chapters/msprime/listings/scaling.py")}
+```
+
+In general, one of the biggest challenges that people have in applying simulations is in dealing with scaling differences between different simulation programs.  I almost always need to resort to pictures on a whiteboard to get the conversions right, especially between different programs.
+
+## Population size changes
+
+Let's consider a simple model of a recent population split.  Thinking forwards in time, one large population split into two in the recent past.  Reversing time in our brains, we imagine that we have samples from each of those present-day populations, and that at some recent time in the past, all the lineages from population one suddenly move into population zero.  Let's take a look at this model:
+
+```{python)}
+config = [msprime.PopulationConfiguration(sample_size=100),
+          msprime.PopulationConfiguration(sample_size=100)]
+
+events = [msprime.MassMigration(time=0.025, source=1,
+          dest=0, proportion=1.0)]
+```
+
+```{python}
+d = msprime.DemographyDebugger(population_configurations=config,
+							   demographic_events=events)
+with open("history.txt", 'w') as f:
+	d.print_history(f)
+```
+
+Let's take a look at this model:
+
+```{r, code=readLines('history.txt'), eval=F}
+```
+
+The output of the demography debugger shows that the population sizes remain constant throughout the entire simulation--the value `1` in the two-by-two matrix shows the relative $N_e$ in each epoch. 
+Forwards in time, then, a population of effective size $N_e$ split into two populations of size $N_e$ each.   In other words, population splits and merges do not change the relative population sizes, which is also how `ms` [@Hudson2002-oo] behaves.
+
+Consider instead a model where the ancestral population size is larger than the present-day sizes.  Specifically, an ancestral population of size $2N_e$ split into two populations of size $N_e$ each:
+
+```{python}
+events.append(msprime.PopulationParametersChange(time=0.025,
+												 initial_size=2.0))
+
+d = msprime.DemographyDebugger(population_configurations=config,
+							   demographic_events=events)
+with open("history.txt", 'w') as f:
+	d.print_history(f)
+```
+
+Let's take a look at this model:
+
+```{r, code=readLines('history.txt'), eval=F}
+```
+
+Figure \@ref(fig:splitscaling) shows one way in which these modeling assumptions matter.  In larger sample sizes, the proportion of rare derived mutations differs substantially. The details of the impact of the model on sample properties will depend on the time of the split, the relative ancestral population size, and the number of lineages sampled from each population (the sampling is equal in the figure).
+
+```{r, splitscaling, echo=FALSE, fig.cap="Proportion of derived singletons as a function of sample sizes.  The two lines compare the case where deme sizes are unchanged during a population split to the case of a reduction in $N_e$ in the present-day populations.  The sample size shown on the $x$ axis is for both populations.  Results are based on 250 simulated replicates with $\\theta=4N_e\\mu=200$. The values for the standard error of the mean (SEM) are too small to see. The code for this figure is in \\@ref(popsizescaling)"}
+knitr::include_graphics("splitscaling.png")
+```
+
+## Mutation, recombination, and population size changes
+
+This is a short section, but an important one!
+
+The $N_e$ in $N_e\mu$ and $N_er$ refers to the $N_e$ parameter used in `msprime.simulate`, as that constant is how branch time units, and thus branch lengths, are scaledAdd short intro to the short sectionAdd short intro to the short section...

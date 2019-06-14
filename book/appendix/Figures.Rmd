@@ -1,0 +1,17 @@
+# Code for generating figures
+
+## Drawing trees {#drawingtreescode}
+
+```{python, code=readLines("chapters/treeseqs/figures/drawtree.py"), eval=F}
+```
+
+## Parameter scaling in msprime {#msprimescalingcode}
+
+```{python, code=readLines("chapters/msprime/figures/msprime_scaling.py"), eval=F}
+```
+
+## Population size changes {#popsizescaling}
+
+```{python, code=readLines("chapters/msprime/figures/split_and_Ne.py"), eval=F}
+```
+

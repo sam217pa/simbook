@@ -66,7 +66,7 @@ Now, we only have one array containing objects.  Choosing between this "array of
 
 Dick Hudson's `ms` [@Hudson2002-oo] used the `node` data structure above to represent a single bifurcating tree simulated according to the Kingman coalescent process [@Kingman1982-cq, @Tajima1983-it, @Hudson1983-kn, @Hudson1990-ff, @Rosenberg2002-ac, @Wakeley2008-hd].  He used arrays of such trees to represent the many correlated trees arising from recombination [@Hudson1983-lk].
 
-## Tree sequences: tables and linked lists
+## Tree sequences: tables and linked lists {#treeseqdetails}
 
 Consider the tree in Figure \@ref(fig:drawtree). It is a genealogy for a sample of $n = 10$ genomes simulated under the Kingman coalescent using `msprime` [@Kelleher2016-cb]. (Chapter \@ref(usingmsprime) introduces this software in more detail and gives references to the key documentation.)  The nodes and their times are labelled as `node: time`.  The first $n$ nodes, labelled $[0, n)$, have time zero; these are our sample nodes.  The nodes with labels $\geq n$ are ancestral nodes, and time increases as we move back into the past.
 
@@ -77,6 +77,8 @@ knitr::include_graphics("drawtree.png")
 Instead of representing the tree as a single linked list, we can represent it as a set of related tables.  For example, a *node table* stores the birth times of each node and is sorted according to birth time (*e.g.* time increasing back into the past), such that the node labels in Figure \@ref(fig:drawtree) are *indexes* into the table.
 
 Define an `edge` as an object connecting parent $i$ to child $j$ with respect to genomic interval $[a, b)$.  For example, an `edge` equal to the tuple `(17, 15, a, b)` would be read as "parent node `17` is the ancestor of child node `15` on the half-open interval $[a, b)$".  There, the parent/child values refer to `indexes` of the node table.
+
+There is a potential source of confusion here. The `edge` objects represent the "work" done by *nodes* on a tree--they tell us what lines to draw between which nodes.  The node table is largely just a record of their birth times as well as some additional data (population labels, etc.).
 
 Node and edge tables are the core data structures used in `msprime` [@Kelleher2016-cb], which is the current state-of-the-art of coalescent simulation.  Collectively, these tables allow traversal of individual trees and iteration across correlated trees (which arise due to recombination), and thus represent a "tree sequence" data structure.  Recently, the "guts" of `msprime` that handle tree sequences have been separated into a standalone library, which is the subject of the next section, where we will look in a bit more detail at these data structures.
 

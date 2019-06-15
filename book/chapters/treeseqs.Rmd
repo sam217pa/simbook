@@ -78,7 +78,7 @@ Instead of representing the tree as a single linked list, we can represent it as
 
 Define an `edge` as an object connecting parent $i$ to child $j$ with respect to genomic interval $[a, b)$.  For example, an `edge` equal to the tuple `(17, 15, a, b)` would be read as "parent node `17` is the ancestor of child node `15` on the half-open interval $[a, b)$".  There, the parent/child values refer to `indexes` of the node table.
 
-There is a potential source of confusion here. The `edge` objects represent the "work" done by *nodes* on a tree--they tell us what lines to draw between which nodes.  The node table is largely just a record of their birth times as well as some additional data (population labels, etc.).
+There is a potential source of confusion here. Here, a `node` is an object labelled in a specific temporal order (often backwards in time).  However, it is the `edges` that define the label structure of the tree, telling us how to connect the dots.  In effect, one could consider the `edge` objects to be the nodes of the tree, and the redundancy that would arise from writing the parental time down for each edge is the node table's responsibility.
 
 Node and edge tables are the core data structures used in `msprime` [@Kelleher2016-cb], which is the current state-of-the-art of coalescent simulation.  Collectively, these tables allow traversal of individual trees and iteration across correlated trees (which arise due to recombination), and thus represent a "tree sequence" data structure.  Recently, the "guts" of `msprime` that handle tree sequences have been separated into a standalone library, which is the subject of the next section, where we will look in a bit more detail at these data structures.
 

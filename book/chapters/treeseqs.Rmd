@@ -295,3 +295,17 @@ ts_new.tables.nodes.time[ts_new.samples()]
 
 This example is not particularly useful.  However, there are many applications for tracking nodes associated with older samples (see Schraiber [-@Schraiber2018-ph] for one recent example), and we will revisit this concept in later chapters.
 
+### Other important `tskit` features
+
+TBW
+
+1. multiple roots allowed in trees
+2. ???
+
+## Current and future applications of tree sequences
+
+TBW
+
+1. building blocks of sims
+2. data compression format 
+3. building block of inference tool

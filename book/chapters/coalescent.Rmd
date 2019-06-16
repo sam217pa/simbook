@@ -4,7 +4,7 @@ This chapter deals with the technical details of coalescent simulation.  We have
 
 ## Labelled trees
 
-If we look at the trees shown in previous chapters, there are several important features to keep in mind. For example, in Figure \@ref(drawtree), there is a strict ordering of node times (and their corresponding labels/indexes) from the present to the past.  Further, every node is labelled, and ancestral nodes are labelled according to their set of children, who are in turn labelled by their set of children, etc., until we reach the present day sample, which we may think of as a separate labelling (the set of modern-day alleles that are the descendants of a specific ancestral node).
+If we look at the trees shown in previous chapters, there are several important features to keep in mind. For example, in Figure \@ref(fig:drawtree), there is a strict ordering of node times (and their corresponding labels/indexes) from the present to the past.  Further, every node is labelled, and ancestral nodes are labelled according to their set of children, who are in turn labelled by their set of children, etc., until we reach the present day sample, which we may think of as a separate labelling (the set of modern-day alleles that are the descendants of a specific ancestral node).
 
 In trees like these, a node is a specific genome at a specific point in time.  Thinking in terms of edges (Section \@ref(treeseqdetails)), a node node represents a set of parent/child relationships over a specific genomic interval.
 

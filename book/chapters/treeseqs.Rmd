@@ -304,8 +304,8 @@ TBW
 
 ## Current and future applications of tree sequences
 
-TBW
+Tree sequences will be a major component of much of what we do in this book.  The `edge` and `node` data structures will be the building blocks for both backwards-time (coalescent) and forward-time simulations.  We will also see examples of working with other data and table types that allow iteration over mutations.  Using tables as the central data structure for simulation is perhaps the most obvious application of tree sequences, and the one that gives the most immediate benefit.
 
-1. building blocks of sims
-2. data compression format 
-3. building block of inference tool
+The next step in using tree sequences in the context of simulation is to apply algorithms using the data structures to efficiently process our simulated data. We saw examples of this idea above, calculating the total time on trees.  Currently, tools like [msprime](http://msprime.readthedocs.io) and [fwdpy11](http://fwdpy11.readthedocs.io) provide many built-in functions based on tree sequence algorithms, and [slim](http://messerlab.org/slim) [@Haller2018-eo] is able to write tree sequences to file for later post-processing with `tskit`.
+
+The use of tree sequences as a data storage format is currently only really applied by the various simulation tools using tree sequence data structures.  However, this will hopefully change.  For storing trees, the `tskit` "tree file" format is much more efficient than the "Newick" format commonly used in phylogenetics [@Kelleher2016-cb].  For storing genotype data from natural populations, the tree files are vastly smaller and more performant than the current "standard" VCF files [@Kelleher2018-dk].  Using tree sequences to store "real" data may seem non-obvious at first.  The paper just cited describes `tsinfer`, a method to infer the genealogy of very large samples, storing the results in the `tskit` tree file format.  While the method will not be 100% accurate at inferring the genealogy, that does not affect the utility of the output for storage.  Even if the inferred genealogy is problematic, there is still a one-to-one correspondence between the input data and the output, which is all that we require of a file format.  Thus, `tsinfer` can be used to provide lossless compression of large genomic data sets.  It is worth reading the `msprime` [@Kelleher2016-cb] and `tsinfer` papers [@Kelleher2018-dk] papers to learn more about how efficient tree sequences are as a data storage format.

@@ -129,4 +129,4 @@ knitr::include_graphics("splitscaling.png")
 
 This is a short section, but an important one!
 
-The $N_e$ in $N_e\mu$ and $N_er$ refers to the $N_e$ parameter used in `msprime.simulate`, as that constant is how branch time units, and thus branch lengths, are scaledAdd short intro to the short sectionAdd short intro to the short section...
+The $N_e$ in $N_e\mu$ and $N_er$ refers to the $N_e$ parameter used in `msprime.simulate`, as that constant is how branch time units, and thus branch lengths, are scaled.

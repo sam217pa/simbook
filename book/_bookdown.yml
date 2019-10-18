@@ -6,8 +6,7 @@ rmd_files:
         "chapters/coalescentsimapplications.Rmd",
         "chapters/forwardsim.Rmd",
         "appendix/Appendix.Rmd",
-        "appendix/Figures.Rmd",
-        "appendix/LanguageStandards.Rmd"
+        "appendix/Figures.Rmd"
         ]
     html: ["index.Rmd",
         "chapters/treeseqs.Rmd",
@@ -17,8 +16,7 @@ rmd_files:
         "chapters/forwardsim.Rmd",
         "appendix/Appendix.Rmd",
         "appendix/Figures.Rmd",
-        "chapters/references.Rmd",
-        "appendix/LanguageStandards.Rmd"
+        "chapters/references.Rmd"
         ]
 output_dir: book_output
 book_filename: simbook.Rmd

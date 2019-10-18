@@ -1,0 +1,52 @@
+Let's use our function to traverse each tree and get the total time:
+
+```{python}
+times = []
+node_times = ts.tables.nodes.time[:]
+for left, parents in algT(ts):
+    tt = 0.0
+    for i in range(len(parents)):
+        if parents[i] != -1:
+            tt += node_times[parents[i]] - node_times[i]
+    times.append(tt)
+print(times)
+```
+
+**TIP** The various arrays representing tables in `tskit` are seen in Python as `numpy` arrays (which themselves are thin layers on top of arrays allocated on the `C` side).  The `x = y[:]` syntax tells `numpy` to create a "view" of an array, meaning that `x` and `y` share the same underlying data buffer.  The `node_times` variable above saves us some typing while not requiring a copy of the data.
+
+We can sanity-check our results using `tskit` directly:
+
+```{python}
+tskit_times = []
+for t in ts.trees():
+    tskit_times.append(t.total_branch_length)
+assert times == tskit_times
+```
+
+This method for calculating the total time on a tree is very efficient, with fast summations over contiguous arrays.   We *could* do even better in principle, by writing a variant of `algT` that adds and subtracts values from the total time as nodes come and go. The following code block defines a Python class that will track the total time on each tree. As nodes leave trees, the total time is decremented.  As nodes enter trees, it is incremented:
+
+```{python, code=readLines("chapters/treeseqs/listings/total_time.py")}
+```
+
+The following function is a re-implementation of `algT` from above, taking an additional argument that can be any Python object that ["duck types"](https://en.wikipedia.org/wiki/Duck_typing) the interface of our `TotalTime` class:
+
+```{python, code=readLines("chapters/treeseqs/listings/custom_quantity.py")}
+```
+
+We see that the new function and class are easy to use and give the same results as `tskit`, modulo the standard annoyances of floating-point precision:
+
+```{python}
+ttime = TotalTime()
+times = [i for i in custom_quantity(ts, ttime)]
+# Note, we cannot assert array equality here,
+# as we have done our addition/subtraction in a 
+# different order from the tskit implementation.
+# Both, however, are correct, in a strict numerical
+# sense:
+assert np.allclose(times, tskit_times)
+```
+
+The method implemented in `tskit` is the same as the simple Python loop shown above.  Getting the total time on each tree requires $O(E)$ operations for each tree, where $E$ is the length of the edge table.  Our new implementation requires $O(E)$ only for the first tree.  For the remaining trees, changes are only required for the nodes that change from tree to tree.  To avoid misleading anyone, I am not suggesting that the Python implementation shown above would outperform `tskit`.  Rather, I suspect the opposite--the inherent speed differences between `C` and Python can often blow aside differences predicted by big-$O$ considerations.
+
+Unfortunately, the approach taken here doesn't generalize well.  If we require traversal in other directions, our requirements become more complex (see Section \@ref(generalizedtreetraversal)). Also, from a software engineering perspective, supporting such general callbacks on the `C` side of `tskit` would require considerable care.
+

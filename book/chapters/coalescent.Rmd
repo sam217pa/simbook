@@ -1,5 +1,17 @@
 # Coalescent simulation {#coalescentsim}
 
+This chapter deals with the technical details of coalescent simulation.  We have seen some simulations run in Chapter \@ref(treeseqs), but we have not yet defined what we mean by a coalescent simulation.  As it happens, there is no one coalescent simulation.  Rather, there are many families of models for generating the genealogies of samples.  We will start with a brief description of Kingman's continuous-time labelled coalescent, which is the "standard" model of the field, discovered independently by @Kingman1982-cq, @Tajima1983-it, and @Hudson1983-kn.  The key features that we will describe are the structures of trees and the measurement of time. Many excellent reviews already exist on this flavor of the coalescent (@Wakeley2008-hd, @Rosenberg2002-ac, @Hudson1990-ff).
+
+## Labelled trees
+
+If we look at the trees shown in previous chapters, there are several important features to keep in mind. For example, in Figure \@ref(fig:drawtree), there is a strict ordering of node times (and their corresponding labels/indexes) from the present to the past.  Further, every node is labelled, and ancestral nodes are labelled according to their set of children, who are in turn labelled by their set of children, etc., until we reach the present day sample, which we may think of as a separate labelling (the set of modern-day alleles that are the descendants of a specific ancestral node).
+
+In trees like these, a node is a specific genome at a specific point in time.  Thinking in terms of edges (Section \@ref(treeseqdetails)), a node node represents a set of parent/child relationships over a specific genomic interval.
+
+
+## The continuous time approximation
+
+
 ## Some history
 
 TBD: ARG/HRG/PSMC/TS

@@ -9,6 +9,8 @@ output:
     bookdown::pdf_book:
         keep_tex: yes
         citation_package: natbib
+        includes:
+            in_headers: preamble.tex
     bookdown::gitbook:
         split_by: chapter
 bibliography: [chapters/simbook.bib]

@@ -160,7 +160,7 @@ for o in outorder:
     print(o)
 ```
 
-These two lists tell us what nodes are coming into, and exiting from, trees whose left edge is at position $x$.  Within each list, the sorting order with respect to parent node time gives us the order in which to apply these changes so that they propagate correctly through the tree.  The following code implements `Algorithms T` described in [@Kelleher2016-cb]:
+These two lists tell us what nodes are coming into, and exiting from, trees whose left edge is at position $x$.  Within each list, the sorting order with respect to parent node time gives us the order in which to apply these changes so that they propagate correctly through the tree.  The following code implements `Algorithm T` described in [@Kelleher2016-cb]:
 
 ```{python}, code=readLines("chapters/treeseqs/listings/algT.py")}
 ```

@@ -5,6 +5,7 @@ rmd_files:
         "chapters/msprime.Rmd",
         "chapters/coalescentsimapplications.Rmd",
         "chapters/forwardsim.Rmd",
+        "chapters/treeseqstats.Rmd",
         "appendix/Appendix.Rmd",
         "appendix/Figures.Rmd"
         ]
@@ -14,6 +15,7 @@ rmd_files:
         "chapters/msprime.Rmd",
         "chapters/coalescentsimapplications.Rmd",
         "chapters/forwardsim.Rmd",
+        "chapters/treeseqstats.Rmd",
         "appendix/Appendix.Rmd",
         "appendix/Figures.Rmd",
         "chapters/references.Rmd"
